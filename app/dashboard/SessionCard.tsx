@@ -23,8 +23,8 @@ export default function SessionCard({
   const progress = (players / maxPlayers) * 100;
   let span_status, bg_progress;
   if(status === "OPEN"){
-    span_status = "bg-white text-green-700"
-    bg_progress = "bg-green-700"
+    span_status = "bg-white text-text"
+    bg_progress = "bg-text"
   }
   else{
     span_status = "bg-red-600 text-white"
@@ -32,7 +32,7 @@ export default function SessionCard({
   }
 
   return (
-    <WhiteCard className="flex-col overflow-hidden items-start" padding="p-0">
+    <WhiteCard className="flex-col overflow-hidden items-start" padding="md:p-0">
       <div className="relative w-full">
         <img
           src={image}
@@ -66,7 +66,7 @@ export default function SessionCard({
 
 
       {/* Content */}
-      <div className="p-5">
+      <div className="p-5 w-full">
         <h3 className="
           text-2xl
           font-bold

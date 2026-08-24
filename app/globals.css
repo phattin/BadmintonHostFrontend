@@ -4,6 +4,7 @@
   --background: #ffffff;
   --foreground: #171717;
 
+  --main0: #F0FDF1;
   --main1: #E8F5E9;
   --main2: #A5D6A7;
   --main3: #66BB6A;
@@ -22,6 +23,7 @@
   --color-placeholder: var(--main2);
   --color-bg: var(--main1);
   --color-main3: var(--main3);
+  --color-main0: var(--main0);
 
   --font-sans: var(--font-toronto);
 
@@ -45,4 +47,31 @@ h2 {
   font-size: 2rem;
   color: var(--main4);
   font-weight: 800;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+}
+
+
+/* Mobile */
+@media (max-width: 640px) {
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
 }

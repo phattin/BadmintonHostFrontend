@@ -3,7 +3,7 @@ export default function AuthCard(){
         <div className="relative w-[40%] self-stretch">
         <img
           className="absolute rounded-s-2xl inset-0 w-full h-full object-cover"
-          src="/img_login.png"
+          src="/img_login.webp"
           alt="Badminton"
         />
         <div className="absolute inset-0 bg-black/35"></div>
