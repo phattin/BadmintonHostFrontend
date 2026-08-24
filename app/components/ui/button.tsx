@@ -2,12 +2,16 @@ import { ButtonHTMLAttributes, ReactNode, } from "react"
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>{
     icon?: ReactNode;
+    background?: string;
+    color?: string;
 }
 
 export default function Button({
   icon,
   children,
   className = "",
+  background = "bg-button",
+  color = "text-white",
   ...props
 }: ButtonProps) {
   return (
@@ -19,15 +23,16 @@ export default function Button({
         justify-center
         gap-2
         rounded-lg
-        bg-button
-        py-3.5
+        p-4
         text-[14px]
         font-bold
-        text-white
         transition
         hover:opacity-90
         active:scale-[0.99]
+        cursor-pointer
         ${className}
+        ${background}
+        ${color}
       `}
       {...props}
     >
