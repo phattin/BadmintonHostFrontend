@@ -6,9 +6,9 @@ import Image from "next/image";
 export default function Sidebar() {
   return (
     <div>
-      <div className="hidden lg:flex flex-col p-5 w-72 bg-[#d3e4d4] border-r border-r-gray-400 h-full">
+      <div className="hidden lg:flex flex-col p-5 w-55 bg-[#c5dec7ea] h-full">
         <div className="flex">
-          <Image className="size-18" width={72} height={72} src="/logo_badminton.webp" alt="Logo" />
+          <Image className="size-12" width={72} height={72} src="/logo_badminton.webp" alt="Logo" />
           <div>
             <h2>Host Badminton</h2>
             <span>Admin</span>
@@ -18,44 +18,44 @@ export default function Sidebar() {
           <nav className="mt-10 flex flex-col gap-2">
             <SidebarItem
               active
-              icon={<LayoutDashboard size={20} />}
+              icon={<LayoutDashboard size={15} />}
               label="Dashboard"
               href="/dashboard"
             />
   
             <SidebarItem
-              icon={<MapPin size={20} />}
+              icon={<MapPin size={15} />}
               label="Venues"
               href="/dashboard"
             />
   
             <SidebarItem
-              icon={<CalendarClock size={20} />}
+              icon={<CalendarClock size={15} />}
               label="Sessions"
               href="/dashboard"
             />
   
             <SidebarItem
-              icon={<Package size={20} />}
+              icon={<Package size={15} />}
               label="ShuttleCock"
               href="/dashboard"
             />
   
             <SidebarItem
-              icon={<ChartNoAxesCombined size={20} />}
+              icon={<ChartNoAxesCombined size={15} />}
               label="Statistics"
               href="/dashboard"
             />
           </nav>
         </div>
         <div className="mt-auto">
-          <button className="flex items-center p-5 gap-3 text-xl text-gray-700 cursor-pointer hover:bg-bg w-full">
-            <Settings size={20} />
+          <button className="flex items-center p-3 gap-3 text-l text-gray-700 cursor-pointer hover:bg-bg w-full">
+            <Settings size={15} />
             Settings
           </button>
   
-          <button className="flex items-center p-5 gap-3 text-xl text-red-600 cursor-pointer hover:bg-bg w-full">
-            <LogOut size={20} />
+          <button className="flex items-center p-3 gap-3 text-l text-red-600 cursor-pointer hover:bg-bg w-full">
+            <LogOut size={15} />
             Logout
           </button>
         </div>

@@ -10,7 +10,7 @@ export default function Button({
   icon,
   children,
   className = "",
-  background = "bg-button",
+  background = "bg-btn_content",
   color = "text-white",
   ...props
 }: ButtonProps) {
