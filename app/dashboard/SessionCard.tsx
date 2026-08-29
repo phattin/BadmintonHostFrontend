@@ -38,7 +38,7 @@ export default function SessionCard({
           src={image}
           alt={title}
           className="
-            h-32
+            h-28
             w-full
             object-cover
             rounded-t-2xl
@@ -53,7 +53,7 @@ export default function SessionCard({
             rounded
             px-3
             py-1
-            text-l
+            text-sm
             font-bold
             ${
               span_status
@@ -68,7 +68,7 @@ export default function SessionCard({
       {/* Content */}
       <div className="p-5 w-full">
         <h3 className="
-          text-2xl
+          text-xl
           font-bold
           text-text
         ">
@@ -76,12 +76,12 @@ export default function SessionCard({
         </h3>
 
 
-        <p className="mt-2 text-xl font-semibold text-gray-600">
+        <p className="mt-2 text-l font-semibold text-gray-600">
           📅 {time}
         </p>
 
 
-        <p className="mt-2 text-xl font-semibold text-gray-600">
+        <p className="mt-2 text-l font-semibold text-gray-600">
           📍 {courts}
         </p>
 

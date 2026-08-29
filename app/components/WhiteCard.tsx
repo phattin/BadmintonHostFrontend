@@ -6,7 +6,7 @@ type WhiteCardProps = {
     children?: ReactNode;
 };
 
-export default function WhiteCard({ className = "", padding = "md:p-6 lg:p-10", children }: WhiteCardProps) {
+export default function WhiteCard({ className = "", padding = "md:p-6", children }: WhiteCardProps) {
     return(
         <div className={`bg-white w-full rounded-2xl p-3 flex justify-between items-center ${className} ${padding}`}>
             {children}

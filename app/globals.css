@@ -10,6 +10,7 @@
   --main3: #66BB6A;
   --main4: #1B5E20;
   --main5: #10371f;
+  --btn_content: #164e2b;
 }
 
 
@@ -24,6 +25,7 @@
   --color-bg: var(--main1);
   --color-main3: var(--main3);
   --color-main0: var(--main0);
+  --color-btn_content: var(--btn_content);
 
   --font-sans: var(--font-toronto);
 
@@ -38,13 +40,13 @@ body {
 
 
 h1 {
-  font-size: 3rem;
+  font-size: 2rem;
   color: var(--main4);
   font-weight: 800;
 }
 
 h2 {
-  font-size: 2rem;
+  font-size: 1.25rem;
   color: var(--main4);
   font-weight: 800;
 }
@@ -53,11 +55,11 @@ h2 {
 @media (max-width: 1024px) {
 
   h1 {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
   }
 
   h2 {
-    font-size: 1.75rem;
+    font-size: 0.75rem;
   }
 
 }
@@ -67,11 +69,11 @@ h2 {
 @media (max-width: 640px) {
 
   h1 {
-    font-size: 1.75rem;
+    font-size: 1.25rem;
   }
 
   h2 {
-    font-size: 1.25rem;
+    font-size: 0.25rem;
   }
 
 }
