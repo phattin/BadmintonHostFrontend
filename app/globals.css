@@ -1,23 +1,52 @@
 @import "tailwindcss";
 
+/* Cho phép dùng dark:... bằng class .dark */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
 
-  --main0: #F0FDF1;
-  --main1: #E8F5E9;
-  --main2: #A5D6A7;
-  --main3: #66BB6A;
-  --main4: #1B5E20;
+  --card: #ffffff;
+  --border: #d8e8da;
+  --muted: #6b7280;
+
+  --main0: #f0fdf1;
+  --main1: #e8f5e9;
+  --main2: #a5d6a7;
+  --main3: #66bb6a;
+  --main4: #1b5e20;
   --main5: #10371f;
+
   --btn_content: #164e2b;
 }
 
+/* DARK MODE */
+.dark {
+  --background: #0f1711;
+  --foreground: #eef5ef;
+
+  --card: #172019;
+  --border: #334438;
+  --muted: #aab8ad;
+
+  --main0: #19281d;
+  --main1: #203426;
+  --main2: #365f3d;
+  --main3: #66bb6a;
+  --main4: #9bd89f;
+  --main5: #c8e6c9;
+
+  --btn_content: #347a45;
+}
 
 @theme inline {
-
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-border-theme: var(--border);
+  --color-muted: var(--muted);
 
   --color-button: var(--main5);
   --color-text: var(--main4);
@@ -28,16 +57,16 @@
   --color-btn_content: var(--btn_content);
 
   --font-sans: var(--font-toronto);
-
 }
-
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-toronto), Arial, Helvetica, sans-serif;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
-
 
 h1 {
   font-size: 2rem;
@@ -53,27 +82,22 @@ h2 {
 
 /* Tablet */
 @media (max-width: 1024px) {
-
   h1 {
     font-size: 1.5rem;
   }
 
   h2 {
-    font-size: 0.75rem;
+    font-size: 1rem;
   }
-
 }
-
 
 /* Mobile */
 @media (max-width: 640px) {
-
   h1 {
     font-size: 1.25rem;
   }
 
   h2 {
-    font-size: 0.25rem;
+    font-size: 1rem;
   }
-
 }

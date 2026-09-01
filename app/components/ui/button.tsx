@@ -1,9 +1,9 @@
-import { ButtonHTMLAttributes, ReactNode, } from "react"
+import { ButtonHTMLAttributes, ReactNode } from "react";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>{
-    icon?: ReactNode;
-    background?: string;
-    color?: string;
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  icon?: ReactNode;
+  background?: string;
+  color?: string;
 }
 
 export default function Button({
@@ -38,11 +38,7 @@ export default function Button({
     >
       {children}
 
-      {icon && (
-        <span className="flex items-center">
-          {icon}
-        </span>
-      )}
+      {icon && <span className="flex items-center">{icon}</span>}
     </button>
   );
 }
