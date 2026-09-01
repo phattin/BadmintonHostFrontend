@@ -1,8 +1,10 @@
+"use client";
+import { useRouter } from "next/navigation";
 import WhiteCard from "@/app/components/WhiteCard";
-import Button from "@/app/components/ui/button";
+import Button from "@/app/components/ui/Button";
 import StatCard from "./StatCard";
 import SessionCard from "./SessionCard";
-import { Plus, Dumbbell, Bell } from "lucide-react";
+import { Plus, MapPin, Bell } from "lucide-react";
 import Image from "next/image";
 
 export default function Content() {
@@ -65,8 +67,26 @@ export default function Content() {
       value: "75%",
     },
   ];
+  const router = useRouter();
+
+  const handleViewSessionDetail = () => {
+    router.push("/dashboard/session/1");
+  };
+
+  const handleViewAllSessions = () => {
+    router.push("/dashboard/session");
+  };
+
+  const handleCreateSession = () => {
+    router.push("/dashboard/session/new");
+  };
+
+  const handleCreateVenue = () => {
+    router.push("/dashboard/venue");
+  };
+
   return (
-    <div className="bg-bg w-full p-5 pb-24 md:p-8 md:pb-26 lg:pb-5 flex flex-col justify-between gap-5 md:gap-8">
+    <div className="bg-bg w-full h-full p-5 pb-24 md:p-8 md:pb-26 lg:pb-5 flex flex-col justify-between gap-5 md:gap-8">
       {/* HEADER */}
       <div>
         <WhiteCard>
@@ -90,7 +110,10 @@ export default function Content() {
             </div>
           </div>
           <div className="flex items-center md:gap-5">
-            <button aria-label="Notifications" className="hidden md:flex size-10 rounded-full bg-placeholder items-center justify-center">
+            <button
+              aria-label="Notifications"
+              className="hidden md:flex size-10 rounded-full bg-placeholder items-center justify-center"
+            >
               <Bell size={17} />
             </button>
             <Image
@@ -111,7 +134,15 @@ export default function Content() {
             title={stat.title}
             value={stat.value}
             description={stat.description}
-            icon={<Image src={stat.icon} alt={stat.title} width={72} height={72} className="size-5" />}
+            icon={
+              <Image
+                src={stat.icon}
+                alt={stat.title}
+                width={72}
+                height={72}
+                className="size-5"
+              />
+            }
             iconBgColor={stat.iconBgColor}
             valueColor={stat.valueColor}
             descriptionColor={stat.descriptionColor}
@@ -128,9 +159,13 @@ export default function Content() {
               <h3 className=" text-xl md:text-2xl font-semibold">
                 In Progress
               </h3>
-              <a href="" className="text-sm md:text-lg text-text font-semibold">
-                View All
-              </a>
+              <button
+                type="button"
+                onClick={handleViewSessionDetail}
+                className="cursor-pointer text-sm font-semibold text-text hover:underline md:text-lg"
+              >
+                View Detail
+              </button>
             </div>
             <WhiteCard className="border-l-4 border-main3 flex-col items-start lg:flex-row gap-3">
               <div>
@@ -168,9 +203,13 @@ export default function Content() {
               <h3 className="text-xl md:text-2xl font-semibold">
                 Upcoming Sessions
               </h3>
-              <a href="" className="text-sm md:text-lg text-text font-semibold">
-                View Schedule
-              </a>
+              <button
+                type="button"
+                onClick={handleViewAllSessions}
+                className="cursor-pointer text-sm font-semibold text-text hover:underline md:text-lg"
+              >
+                View All
+              </button>
             </div>
             <div className="flex flex-col lg:flex-row justify-between gap-5">
               {sessions.map((session) => (
@@ -184,17 +223,23 @@ export default function Content() {
           <WhiteCard className="hidden md:flex flex-col gap-5 items-start">
             <h3 className="text-2xl font-semibold">Quick Actions</h3>
             <div className="flex flex-col gap-4 w-full">
-              <Button aria-label="Create session">
+              <Button
+                type="button"
+                aria-label="Create session"
+                onClick={handleCreateSession}
+              >
                 <Plus size={15} />
                 Create a session
               </Button>
               <Button
+                type="button"
                 aria-label="Create venue"
+                onClick={handleCreateVenue}
                 className="border border-text"
                 background="bg-background"
                 color="text-text"
               >
-                <Dumbbell size={15} />
+                <MapPin size={15} />
                 Create a venue
               </Button>
             </div>

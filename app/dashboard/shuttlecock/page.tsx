@@ -1,5 +1,5 @@
 import Content from "./Content";
 
-export default function DashboardPage() {
+export default function ShuttleCockPage() {
   return <Content />;
 }
