@@ -86,7 +86,7 @@ export default function Content() {
   };
 
   return (
-    <div className="bg-bg w-full h-full p-5 pb-24 md:p-8 md:pb-26 lg:pb-5 flex flex-col justify-between gap-5 md:gap-8">
+    <div className="bg-bg w-full p-5 pb-24 md:p-8 md:pb-26 lg:pb-5 flex flex-col justify-between gap-5 md:gap-8">
       {/* HEADER */}
       <div>
         <WhiteCard>

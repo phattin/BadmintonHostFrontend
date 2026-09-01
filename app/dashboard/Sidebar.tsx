@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import SettingsPopup from "./SettingsPopup";
 import {
   CalendarClock,
   ChartNoAxesCombined,
@@ -17,6 +19,10 @@ import SidebarItem from "./SidebarItem";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const handleToggleSettings = () => {
+    setIsSettingsOpen((prev) => !prev);
+  };
 
   const isActive = (href: string) => {
     if (href === "/dashboard") {
@@ -91,12 +97,27 @@ export default function Sidebar() {
         </nav>
 
         <div className="mt-auto">
-          <button className="flex w-full cursor-pointer items-center gap-3 p-3 text-l text-gray-700 hover:bg-bg">
-            <Settings size={15} />
-            Settings
-          </button>
+          <div className="relative">
+            <SettingsPopup open={isSettingsOpen} />
 
-          <button className="flex w-full cursor-pointer items-center gap-3 p-3 text-l text-red-600 hover:bg-bg">
+            <button
+              type="button"
+              onClick={handleToggleSettings}
+              className={`flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-l transition ${
+                isSettingsOpen
+                  ? "bg-placeholder text-text"
+                  : "text-gray-700 hover:bg-bg"
+              }`}
+            >
+              <Settings size={15} />
+              Settings
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className="flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-l text-red-600 hover:bg-bg"
+          >
             <LogOut size={15} />
             Logout
           </button>
