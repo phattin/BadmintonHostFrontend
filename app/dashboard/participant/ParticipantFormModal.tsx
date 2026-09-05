@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Phone, User, X } from "lucide-react";
 
@@ -53,8 +54,9 @@ export default function ParticipantFormModal({
   onClose,
   onSubmit,
 }: ParticipantFormModalProps) {
-  const [formData, setFormData] =
-    useState<ParticipantFormData>(emptyForm);
+  const t = useTranslations("participantForm");
+  const common = useTranslations("common");
+  const [formData, setFormData] = useState<ParticipantFormData>(emptyForm);
 
   useEffect(() => {
     if (!open) return;
@@ -62,10 +64,7 @@ export default function ParticipantFormModal({
     setFormData(initialData ?? emptyForm);
   }, [open, initialData]);
 
-  const handleChange = (
-    field: keyof ParticipantFormData,
-    value: string,
-  ) => {
+  const handleChange = (field: keyof ParticipantFormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -82,11 +81,9 @@ export default function ParticipantFormModal({
     });
   };
 
-  const title =
-    mode === "add" ? "Add participant" : "Edit participant";
+  const title = mode === "add" ? t("addTitle") : t("editTitle");
 
-  const buttonText =
-    mode === "add" ? "Add participant" : "Save changes";
+  const buttonText = mode === "add" ? t("addTitle") : common("saveChanges");
 
   return (
     <Modal open={open} onClose={onClose} className="max-w-lg">
@@ -94,18 +91,14 @@ export default function ParticipantFormModal({
         {/* HEADER */}
         <div className="flex items-center justify-between border-b border-placeholder/40 px-5 py-4 md:px-6">
           <div>
-            <h2 className="text-xl font-bold text-text md:text-2xl">
-              {title}
-            </h2>
+            <h2 className="text-xl font-bold text-text md:text-2xl">{title}</h2>
 
-            <p className="mt-1 text-sm text-gray-500">
-              Manage participant information.
-            </p>
+            <p className="mt-1 text-sm text-gray-500">{t("description")}</p>
           </div>
 
           <button
             type="button"
-            aria-label="Close"
+            aria-label={common("close")}
             onClick={onClose}
             className="flex size-9 cursor-pointer items-center justify-center rounded-full text-gray-600 transition hover:bg-bg hover:text-text"
           >
@@ -117,51 +110,43 @@ export default function ParticipantFormModal({
         <div className="px-5 pb-6 md:px-6">
           <Input
             id="participant-name"
-            label="Participant name"
-            placeholder="e.g. John Smith"
+            label={t("name")}
+            placeholder={t("namePlaceholder")}
             icon={<User size={16} />}
             value={formData.name}
-            onChange={(event) =>
-              handleChange("name", event.target.value)
-            }
+            onChange={(event) => handleChange("name", event.target.value)}
             required
           />
 
           <Input
             id="participant-phone"
-            label="Phone number"
+            label={t("phone")}
             type="tel"
-            placeholder="e.g. 0901234567"
+            placeholder={t("phonePlaceholder")}
             icon={<Phone size={16} />}
             value={formData.phone}
-            onChange={(event) =>
-              handleChange("phone", event.target.value)
-            }
+            onChange={(event) => handleChange("phone", event.target.value)}
           />
 
           <div className="grid gap-0 sm:grid-cols-2 sm:gap-4">
             <Select
               id="participant-gender"
-              label="Gender"
+              label={t("gender")}
               value={formData.gender}
-              onChange={(event) =>
-                handleChange("gender", event.target.value)
-              }
+              onChange={(event) => handleChange("gender", event.target.value)}
             >
-              <option value="MALE">Male</option>
-              <option value="FEMALE">Female</option>
-              <option value="OTHER">Other</option>
+              <option value="MALE">{t("male")}</option>
+              <option value="FEMALE">{t("female")}</option>
+              <option value="OTHER">{t("other")}</option>
             </Select>
 
             <Select
               id="participant-level"
-              label="Level"
+              label={t("level")}
               value={formData.level}
-              onChange={(event) =>
-                handleChange("level", event.target.value)
-              }
+              onChange={(event) => handleChange("level", event.target.value)}
             >
-              <option value="NEWBIE">Newbie</option>
+              <option value="NEWBIE">{t("newbie")}</option>
               <option value="Y-">Y-</option>
               <option value="Y">Y</option>
               <option value="Y+">Y+</option>
@@ -183,7 +168,7 @@ export default function ParticipantFormModal({
               color="text-text"
               className="border border-placeholder"
             >
-              Cancel
+              {common("cancel")}
             </Button>
 
             <Button type="submit">{buttonText}</Button>

@@ -1,14 +1,9 @@
 "use client";
 
-import {
-  FormEvent,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { FormEvent, ReactNode, useMemo, useState } from "react";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   ArrowLeft,
   CalendarClock,
@@ -155,39 +150,31 @@ export default function SessionFormContent({
   initialData,
 }: SessionFormContentProps) {
   const router = useRouter();
+  const t = useTranslations("sessionForm");
 
   const [formData, setFormData] = useState<SessionFormData>(
-    initialData ?? emptyForm,
+    () => initialData ?? emptyForm,
   );
 
   const [formError, setFormError] = useState("");
-
-  useEffect(() => {
-    setFormData(initialData ?? emptyForm);
-  }, [initialData]);
 
   const availableCourts = useMemo(() => {
     if (!formData.venueId) {
       return [];
     }
 
-    return courts.filter(
-      (court) => court.venueId === Number(formData.venueId),
-    );
+    return courts.filter((court) => court.venueId === Number(formData.venueId));
   }, [formData.venueId]);
 
   const suggestedPrice = useMemo<SuggestedPrice | null>(() => {
     const totalPriceCourt = Number(formData.totalPriceCourt);
     const maxSlot = Number(formData.maxSlot);
 
-    const shuttleCockExpected =
-      Number(formData.shuttleCockExpected) || 0;
+    const shuttleCockExpected = Number(formData.shuttleCockExpected) || 0;
 
-    const pricePerShuttleCock =
-      Number(formData.pricePerShuttleCock) || 0;
+    const pricePerShuttleCock = Number(formData.pricePerShuttleCock) || 0;
 
-    const genderPriceDifference =
-      Number(formData.genderPriceDifference) || 0;
+    const genderPriceDifference = Number(formData.genderPriceDifference) || 0;
 
     if (
       !formData.totalPriceCourt ||
@@ -198,14 +185,14 @@ export default function SessionFormContent({
       return null;
     }
 
-    const shuttleCockCost =
-      shuttleCockExpected * pricePerShuttleCock;
+    const shuttleCockCost = shuttleCockExpected * pricePerShuttleCock;
 
     const totalCost = totalPriceCourt + shuttleCockCost;
 
     const average = totalCost / maxSlot;
 
     const male = average + genderPriceDifference / 2;
+
     const female = average - genderPriceDifference / 2;
 
     return {
@@ -224,10 +211,7 @@ export default function SessionFormContent({
     formData.genderPriceDifference,
   ]);
 
-  const handleChange = (
-    field: keyof SessionFormData,
-    value: string,
-  ) => {
+  const handleChange = (field: keyof SessionFormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -264,9 +248,7 @@ export default function SessionFormContent({
   };
 
   const handleShuttleCockChange = (id: string) => {
-    const shuttleCock = shuttleCocks.find(
-      (item) => item.id === Number(id),
-    );
+    const shuttleCock = shuttleCocks.find((item) => item.id === Number(id));
 
     setFormData((prev) => ({
       ...prev,
@@ -277,21 +259,25 @@ export default function SessionFormContent({
     }));
   };
 
+  const handleBack = () => {
+    router.push("/dashboard/session");
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!formData.venueId) {
-      setFormError("Please select a venue.");
+      setFormError(t("selectVenueError"));
       return;
     }
 
     if (formData.courtIds.length === 0) {
-      setFormError("Please select at least one court.");
+      setFormError(t("selectCourtError"));
       return;
     }
 
     if (!formData.startTime || !formData.endTime) {
-      setFormError("Please select a start and end time.");
+      setFormError(t("selectTimesError"));
       return;
     }
 
@@ -299,21 +285,17 @@ export default function SessionFormContent({
       new Date(formData.endTime).getTime() <=
       new Date(formData.startTime).getTime()
     ) {
-      setFormError(
-        "End time must be later than start time.",
-      );
+      setFormError(t("endTimeError"));
       return;
     }
 
     if (Number(formData.maxSlot) <= 0) {
-      setFormError("Max Slot must be greater than 0.");
+      setFormError(t("maxSlotError"));
       return;
     }
 
     if (!formData.priceMale || !formData.priceFemale) {
-      setFormError(
-        "Please enter the male and female prices. Suggested values are for reference only.",
-      );
+      setFormError(t("pricesError"));
       return;
     }
 
@@ -327,27 +309,22 @@ export default function SessionFormContent({
   };
 
   return (
-    <div className="min-h-full w-full bg-bg p-5 pb-24 md:p-8 lg:pb-8">
+    <div className="min-h-full w-full bg-background p-5 pb-24 md:p-8 lg:pb-8">
       {/* BACK */}
       <button
         type="button"
-        onClick={() => router.push("/dashboard/session")}
-        className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-text transition hover:opacity-70"
+        onClick={handleBack}
+        className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-primary transition hover:opacity-70"
       >
         <ArrowLeft size={16} />
-        Back to Sessions
+        {t("back")}
       </button>
 
       {/* TITLE */}
       <div className="mt-4">
-        <h1>
-          {mode === "add" ? "Plan Session" : "Edit Session"}
-        </h1>
+        <h1>{mode === "add" ? t("planTitle") : t("editTitle")}</h1>
 
-        <p className="mt-1 text-sm text-gray-500">
-          Configure courts, pricing, shuttlecocks and session
-          schedule.
-        </p>
+        <p className="mt-1 text-sm text-foreground/60">{t("description")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="mt-6">
@@ -356,19 +333,17 @@ export default function SessionFormContent({
           <section>
             <SectionTitle
               icon={<MapPin size={19} />}
-              title="Venue & Timing"
+              title={t("venueTiming")}
             />
 
             <Select
               id="session-venue"
-              label="Venue"
+              label={t("venue")}
               value={formData.venueId}
-              onChange={(event) =>
-                handleVenueChange(event.target.value)
-              }
+              onChange={(event) => handleVenueChange(event.target.value)}
               required
             >
-              <option value="">Select a venue...</option>
+              <option value="">{t("selectVenue")}</option>
 
               {venues.map((venue) => (
                 <option key={venue.id} value={venue.id}>
@@ -380,7 +355,7 @@ export default function SessionFormContent({
             <div className="grid gap-0 md:grid-cols-2 md:gap-4">
               <Input
                 id="start-time"
-                label="Start Time"
+                label={t("startTime")}
                 type="datetime-local"
                 icon={<CalendarClock size={16} />}
                 value={formData.startTime}
@@ -392,7 +367,7 @@ export default function SessionFormContent({
 
               <Input
                 id="end-time"
-                label="End Time"
+                label={t("endTime")}
                 type="datetime-local"
                 icon={<CalendarClock size={16} />}
                 value={formData.endTime}
@@ -405,26 +380,22 @@ export default function SessionFormContent({
 
             {/* COURT MULTI SELECT */}
             <div className="mt-5">
-              <p className="text-[14px] font-semibold text-text">
-                Allocate Courts
+              <p className="text-sm font-semibold text-foreground">
+                {t("allocateCourts")}
               </p>
 
-              <div className="mt-2 flex min-h-16 flex-wrap items-center gap-2 rounded-xl border border-placeholder bg-main0 p-3">
+              <div className="mt-2 flex min-h-16 flex-wrap items-center gap-2 rounded-lg border border-foreground/30 bg-background p-3">
                 {!formData.venueId ? (
-                  <p className="text-sm text-gray-500">
-                    Select a venue first.
+                  <p className="text-sm text-foreground/60">
+                    {t("selectVenueFirst")}
                   </p>
                 ) : availableCourts.length === 0 ? (
-                  <p className="text-sm text-gray-500">
-                    This venue does not have any courts.
-                  </p>
+                  <p className="text-sm text-foreground/60">{t("noCourts")}</p>
                 ) : (
                   availableCourts.map((court) => {
-                    const selected =
-                      formData.courtIds.includes(court.id);
+                    const selected = formData.courtIds.includes(court.id);
 
-                    const disabled =
-                      court.status !== "AVAILABLE";
+                    const disabled = court.status !== "AVAILABLE";
 
                     return (
                       <button
@@ -434,19 +405,18 @@ export default function SessionFormContent({
                         onClick={() => handleToggleCourt(court)}
                         className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
                           disabled
-                            ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+                            ? "cursor-not-allowed border-foreground/10 bg-foreground/5 text-foreground/30"
                             : selected
-                              ? "cursor-pointer border-main3 bg-main3 text-white"
-                              : "cursor-pointer border-placeholder bg-white text-text hover:bg-bg"
+                              ? "cursor-pointer border-primary bg-primary text-surface"
+                              : "cursor-pointer border-foreground/30 bg-surface text-foreground hover:border-primary hover:text-primary"
                         }`}
                       >
                         {court.name}
 
                         {court.status === "MAINTENANCE" &&
-                          " (Maintenance)"}
+                          ` ${t("maintenance")}`}
 
-                        {court.status === "INACTIVE" &&
-                          " (Inactive)"}
+                        {court.status === "INACTIVE" && ` ${t("inactive")}`}
                       </button>
                     );
                   })
@@ -454,8 +424,8 @@ export default function SessionFormContent({
               </div>
 
               {formData.courtIds.length > 0 && (
-                <p className="mt-2 text-xs text-gray-500">
-                  {formData.courtIds.length} court(s) selected.
+                <p className="mt-2 text-xs text-foreground/60">
+                  {t("selected", { count: formData.courtIds.length })}
                 </p>
               )}
             </div>
@@ -465,16 +435,16 @@ export default function SessionFormContent({
           <section>
             <SectionTitle
               icon={<Users size={19} />}
-              title="Pricing & Capacity"
+              title={t("pricingCapacity")}
             />
 
             <div className="grid gap-0 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
               <Input
                 id="max-slot"
-                label="Max Slot"
+                label={t("maxSlot")}
                 type="number"
                 min={1}
-                placeholder="VD: 16"
+                placeholder="16"
                 value={formData.maxSlot}
                 onChange={(event) =>
                   handleChange("maxSlot", event.target.value)
@@ -484,39 +454,32 @@ export default function SessionFormContent({
 
               <Input
                 id="total-price-court"
-                label="Total Price Court (VNĐ)"
+                label={t("totalPriceCourt")}
                 type="number"
                 min={0}
-                placeholder="VD: 600000"
+                placeholder="600000"
                 value={formData.totalPriceCourt}
                 onChange={(event) =>
-                  handleChange(
-                    "totalPriceCourt",
-                    event.target.value,
-                  )
+                  handleChange("totalPriceCourt", event.target.value)
                 }
                 required
               />
 
               <Input
                 id="gender-price-difference"
-                label="Male - Female Difference"
+                label={t("maleFemaleDifference")}
                 type="number"
                 min={0}
-                placeholder="Không nhập = 0"
+                placeholder={t("differencePlaceholder")}
                 value={formData.genderPriceDifference}
                 onChange={(event) =>
-                  handleChange(
-                    "genderPriceDifference",
-                    event.target.value,
-                  )
+                  handleChange("genderPriceDifference", event.target.value)
                 }
               />
             </div>
 
-            <p className="mt-2 text-xs text-gray-500">
-              Male - Female Difference là số tiền Nam cao hơn Nữ.
-              Nếu để trống, hệ thống xem như 0 VNĐ.
+            <p className="mt-2 text-xs text-foreground/60">
+              {t("differenceHelp")}
             </p>
           </section>
 
@@ -524,27 +487,22 @@ export default function SessionFormContent({
           <section>
             <SectionTitle
               icon={<Package size={19} />}
-              title="ShuttleCock"
+              title={t("shuttlecock")}
             />
 
             <div className="grid gap-0 md:grid-cols-3 md:gap-4">
               <Select
                 id="shuttlecock"
-                label="ShuttleCock"
+                label={t("shuttlecock")}
                 value={formData.shuttleCockId}
                 onChange={(event) =>
                   handleShuttleCockChange(event.target.value)
                 }
               >
-                <option value="">
-                  Select shuttlecock...
-                </option>
+                <option value="">{t("selectShuttlecock")}</option>
 
                 {shuttleCocks.map((shuttleCock) => (
-                  <option
-                    key={shuttleCock.id}
-                    value={shuttleCock.id}
-                  >
+                  <option key={shuttleCock.id} value={shuttleCock.id}>
                     {shuttleCock.name}
                   </option>
                 ))}
@@ -552,65 +510,59 @@ export default function SessionFormContent({
 
               <Input
                 id="price-per-shuttlecock"
-                label="Price Per ShuttleCock"
+                label={t("pricePerShuttlecock")}
                 type="number"
                 value={formData.pricePerShuttleCock}
                 readOnly
-                placeholder="Auto"
-                className="cursor-not-allowed bg-gray-100"
+                placeholder={t("auto")}
+                className="cursor-not-allowed bg-tag/40 text-foreground/60"
               />
 
               <Input
                 id="shuttlecock-expected"
-                label="ShuttleCock Expected"
+                label={t("expected")}
                 type="number"
                 min={0}
-                placeholder="Optional"
+                placeholder={t("expectedPlaceholder")}
                 value={formData.shuttleCockExpected}
                 onChange={(event) =>
-                  handleChange(
-                    "shuttleCockExpected",
-                    event.target.value,
-                  )
+                  handleChange("shuttleCockExpected", event.target.value)
                 }
               />
             </div>
 
-            <p className="mt-2 text-xs text-gray-500">
-              ShuttleCock Expected có thể để trống. Khi để trống,
-              chi phí cầu dự kiến được tính là 0 VNĐ.
+            <p className="mt-2 text-xs text-foreground/60">
+              {t("expectedHelp")}
             </p>
           </section>
 
-          {/* PLAYER PRICE */}
+          {/* PLAYER PRICING */}
           <section>
             <SectionTitle
               icon={<CircleDollarSign size={19} />}
-              title="Player Pricing"
+              title={t("playerPricing")}
             />
 
             {/* CALCULATION SUMMARY */}
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <CalculationCard
-                label="Court Cost"
-                value={Number(
-                  formData.totalPriceCourt || 0,
-                )}
+                label={t("courtCost")}
+                value={Number(formData.totalPriceCourt || 0)}
               />
 
               <CalculationCard
-                label="Expected Shuttle Cost"
+                label={t("expectedShuttleCost")}
                 value={suggestedPrice?.shuttleCockCost ?? 0}
               />
 
               <CalculationCard
-                label="Estimated Total Cost"
+                label={t("estimatedTotalCost")}
                 value={suggestedPrice?.totalCost ?? 0}
                 highlight
               />
 
               <CalculationCard
-                label="Average / Slot"
+                label={t("averageSlot")}
                 value={suggestedPrice?.average ?? 0}
               />
             </div>
@@ -620,16 +572,13 @@ export default function SessionFormContent({
               <div>
                 <Input
                   id="price-male"
-                  label="Price Male"
+                  label={t("priceMale")}
                   type="number"
                   min={0}
-                  placeholder="Enter male price"
+                  placeholder={t("enterMalePrice")}
                   value={formData.priceMale}
                   onChange={(event) =>
-                    handleChange(
-                      "priceMale",
-                      event.target.value,
-                    )
+                    handleChange("priceMale", event.target.value)
                   }
                   required
                 />
@@ -644,16 +593,13 @@ export default function SessionFormContent({
               <div>
                 <Input
                   id="price-female"
-                  label="Price Female"
+                  label={t("priceFemale")}
                   type="number"
                   min={0}
-                  placeholder="Enter female price"
+                  placeholder={t("enterFemalePrice")}
                   value={formData.priceFemale}
                   onChange={(event) =>
-                    handleChange(
-                      "priceFemale",
-                      event.target.value,
-                    )
+                    handleChange("priceFemale", event.target.value)
                   }
                   required
                 />
@@ -667,48 +613,35 @@ export default function SessionFormContent({
 
             {/* FORMULA */}
             {suggestedPrice && suggestedPrice.valid && (
-              <div className="mt-5 rounded-xl border border-placeholder bg-main0 p-4">
-                <p className="text-sm font-semibold text-text">
-                  How is the suggested price calculated?
+              <div className="mt-5 rounded-lg border border-primary/20 bg-tag/40 p-4">
+                <p className="text-sm font-semibold text-primary">
+                  {t("formulaTitle")}
                 </p>
 
-                <div className="mt-2 space-y-1 text-sm text-gray-600">
-                  <p>
-                    Total Cost = Court Cost + Expected Shuttle
-                    Cost
-                  </p>
+                <div className="mt-2 space-y-1 text-sm text-foreground/70">
+                  <p>{t("formulaTotal")}</p>
 
-                  <p>
-                    Average / Slot = Total Cost ÷ Max Slot
-                  </p>
+                  <p>{t("formulaAverage")}</p>
 
-                  <p>
-                    Male = Average + Difference ÷ 2
-                  </p>
+                  <p>{t("formulaMale")}</p>
 
-                  <p>
-                    Female = Average - Difference ÷ 2
-                  </p>
+                  <p>{t("formulaFemale")}</p>
                 </div>
 
-                <p className="mt-3 text-xs text-gray-500">
-                  Suggested prices assume an approximately equal
-                  number of male and female players. You can enter
-                  different prices manually.
+                <p className="mt-3 text-xs text-foreground/60">
+                  {t("formulaDescription")}
                 </p>
               </div>
             )}
 
             {suggestedPrice && !suggestedPrice.valid && (
-              <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4">
-                <p className="text-sm font-semibold text-red-600">
-                  Male - Female Difference is too large for the
-                  current estimated cost and slot count.
+              <div className="mt-5 rounded-lg border border-colorWrong/30 bg-bgWrong p-4">
+                <p className="text-sm font-semibold text-colorWrong">
+                  {t("invalidDifference")}
                 </p>
 
-                <p className="mt-1 text-xs text-red-500">
-                  Reduce the difference or review Max Slot and
-                  session costs.
+                <p className="mt-1 text-xs text-colorWrong/80">
+                  {t("reviewCosts")}
                 </p>
               </div>
             )}
@@ -716,34 +649,30 @@ export default function SessionFormContent({
 
           {/* ERROR */}
           {formError && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-              <p className="text-sm font-medium text-red-600">
-                {formError}
-              </p>
+            <div className="rounded-lg border border-colorWrong/30 bg-bgWrong px-4 py-3">
+              <p className="text-sm font-medium text-colorWrong">{formError}</p>
             </div>
           )}
 
           {/* ACTION */}
-          <div className="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 border-t border-foreground/20 pt-6 sm:flex-row sm:justify-end">
             <Button
               type="button"
-              onClick={() =>
-                router.push("/dashboard/session")
-              }
-              background="bg-white"
-              color="text-text"
-              className="border border-placeholder sm:w-fit sm:px-8"
+              onClick={handleBack}
+              background="bg-surface"
+              color="text-foreground"
+              className="border border-foreground/30 sm:w-fit sm:px-8"
             >
-              Cancel
+              {t("cancel")}
             </Button>
 
             <Button
               type="submit"
+              background="bg-primary"
+              color="text-surface"
               className="sm:w-fit sm:px-8"
             >
-              {mode === "add"
-                ? "Create Session"
-                : "Save Changes"}
+              {mode === "add" ? t("create") : t("save")}
             </Button>
           </div>
         </WhiteCard>
@@ -757,17 +686,12 @@ interface SectionTitleProps {
   title: string;
 }
 
-function SectionTitle({
-  icon,
-  title,
-}: SectionTitleProps) {
+function SectionTitle({ icon, title }: SectionTitleProps) {
   return (
-    <div className="flex items-center gap-2 border-b border-gray-200 pb-3 text-text">
+    <div className="flex items-center gap-2 border-b border-foreground/20 pb-3 text-primary">
       {icon}
 
-      <h3 className="text-xl font-semibold">
-        {title}
-      </h3>
+      <h3 className="text-xl font-semibold">{title}</h3>
     </div>
   );
 }
@@ -785,17 +709,17 @@ function CalculationCard({
 }: CalculationCardProps) {
   return (
     <div
-      className={`rounded-xl p-4 ${
+      className={`rounded-lg border p-4 ${
         highlight
-          ? "border border-placeholder bg-main0"
-          : "bg-bg"
+          ? "border-primary/30 bg-tag/40"
+          : "border-foreground/10 bg-background"
       }`}
     >
-      <p className="text-xs text-gray-500">{label}</p>
+      <p className="text-xs text-foreground/60">{label}</p>
 
       <p
         className={`mt-1 font-bold ${
-          highlight ? "text-lg text-text" : "text-gray-800"
+          highlight ? "text-lg text-primary" : "text-foreground"
         }`}
       >
         {Math.round(value).toLocaleString("vi-VN")} VNĐ
@@ -809,31 +733,25 @@ interface PriceSuggestionProps {
   valid?: boolean;
 }
 
-function PriceSuggestion({
-  price,
-  valid,
-}: PriceSuggestionProps) {
+function PriceSuggestion({ price, valid }: PriceSuggestionProps) {
+  const t = useTranslations("sessionForm");
+
   if (price === undefined) {
     return (
-      <p className="mt-2 text-xs text-gray-400">
-        Enter Total Price Court and Max Slot to get a suggested
-        price.
-      </p>
+      <p className="mt-2 text-xs text-foreground/40">{t("enterInputs")}</p>
     );
   }
 
   if (!valid) {
     return (
-      <p className="mt-2 text-xs text-red-500">
-        Unable to calculate a valid suggested price.
-      </p>
+      <p className="mt-2 text-xs text-colorWrong">{t("invalidSuggestion")}</p>
     );
   }
 
   return (
-    <p className="mt-2 text-xs text-gray-500">
-      Suggested:{" "}
-      <span className="font-semibold text-text">
+    <p className="mt-2 text-xs text-foreground/60">
+      {t("suggested")}{" "}
+      <span className="font-semibold text-primary">
         {Math.round(price).toLocaleString("vi-VN")} VNĐ
       </span>
     </p>

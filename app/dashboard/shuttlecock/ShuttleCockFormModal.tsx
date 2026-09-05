@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Package, X } from "lucide-react";
 
@@ -37,8 +38,9 @@ export default function ShuttleCockFormModal({
   onClose,
   onSubmit,
 }: ShuttleCockFormModalProps) {
-  const [formData, setFormData] =
-    useState<ShuttleCockFormData>(emptyForm);
+  const t = useTranslations("shuttlecockForm");
+  const common = useTranslations("common");
+  const [formData, setFormData] = useState<ShuttleCockFormData>(emptyForm);
 
   useEffect(() => {
     if (!open) return;
@@ -57,10 +59,7 @@ export default function ShuttleCockFormModal({
     return pricePerTube / shuttlecocksPerTube;
   }, [formData.pricePerTube, formData.shuttlecocksPerTube]);
 
-  const handleChange = (
-    field: keyof ShuttleCockFormData,
-    value: string,
-  ) => {
+  const handleChange = (field: keyof ShuttleCockFormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -73,8 +72,8 @@ export default function ShuttleCockFormModal({
     onSubmit(formData);
   };
 
-  const title = mode === "add" ? "Add shuttlecock" : "Edit shuttlecock";
-  const buttonText = mode === "add" ? "Add shuttlecock" : "Save changes";
+  const title = mode === "add" ? t("addTitle") : t("editTitle");
+  const buttonText = mode === "add" ? t("addTitle") : common("saveChanges");
 
   return (
     <Modal open={open} onClose={onClose} className="max-w-lg">
@@ -82,18 +81,14 @@ export default function ShuttleCockFormModal({
         {/* HEADER */}
         <div className="flex items-center justify-between border-b border-placeholder/40 px-5 py-4 md:px-6">
           <div>
-            <h2 className="text-xl font-bold text-text md:text-2xl">
-              {title}
-            </h2>
+            <h2 className="text-xl font-bold text-text md:text-2xl">{title}</h2>
 
-            <p className="mt-1 text-sm text-gray-500">
-              Manage shuttlecock information and pricing.
-            </p>
+            <p className="mt-1 text-sm text-gray-500">{t("description")}</p>
           </div>
 
           <button
             type="button"
-            aria-label="Close"
+            aria-label={common("close")}
             onClick={onClose}
             className="flex size-9 cursor-pointer items-center justify-center rounded-full text-gray-600 transition hover:bg-bg hover:text-text"
           >
@@ -105,35 +100,31 @@ export default function ShuttleCockFormModal({
         <div className="px-5 pb-6 md:px-6">
           <Input
             id="shuttlecock-name"
-            label="Shuttlecock name"
-            placeholder="e.g. Yonex Aerosensa 30"
+            label={t("name")}
+            placeholder={t("namePlaceholder")}
             icon={<Package size={16} />}
             value={formData.name}
-            onChange={(event) =>
-              handleChange("name", event.target.value)
-            }
+            onChange={(event) => handleChange("name", event.target.value)}
             required
           />
 
           <Input
             id="shuttlecock-quantity"
-            label="Quantity received"
+            label={t("quantity")}
             type="number"
             min={1}
-            placeholder="e.g. 10"
+            placeholder={t("quantityPlaceholder")}
             value={formData.quantity}
-            onChange={(event) =>
-              handleChange("quantity", event.target.value)
-            }
+            onChange={(event) => handleChange("quantity", event.target.value)}
             required
           />
 
           <Input
             id="shuttlecock-price"
-            label="Price per tube (VND)"
+            label={t("pricePerTube")}
             type="number"
             min={0}
-            placeholder="e.g. 360000"
+            placeholder={t("pricePlaceholder")}
             value={formData.pricePerTube}
             onChange={(event) =>
               handleChange("pricePerTube", event.target.value)
@@ -143,24 +134,19 @@ export default function ShuttleCockFormModal({
 
           <Input
             id="shuttlecock-per-tube"
-            label="Shuttlecocks per tube"
+            label={t("perTube")}
             type="number"
             min={1}
             value={formData.shuttlecocksPerTube}
             onChange={(event) =>
-              handleChange(
-                "shuttlecocksPerTube",
-                event.target.value,
-              )
+              handleChange("shuttlecocksPerTube", event.target.value)
             }
             required
           />
 
           {/* CALCULATED PRICE */}
           <div className="mt-5 rounded-xl border border-placeholder bg-bg p-4">
-            <p className="text-sm text-gray-500">
-              Auto-calculated price per shuttlecock
-            </p>
+            <p className="text-sm text-gray-500">{t("calculatedPrice")}</p>
 
             <p className="mt-1 text-xl font-bold text-text">
               {Math.round(pricePerShuttlecock).toLocaleString("vi-VN")} VNĐ
@@ -183,7 +169,7 @@ export default function ShuttleCockFormModal({
               color="text-text"
               className="border border-placeholder"
             >
-              Cancel
+              {common("cancel")}
             </Button>
 
             <Button type="submit">{buttonText}</Button>

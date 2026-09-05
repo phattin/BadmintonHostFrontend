@@ -23,11 +23,11 @@ export default function SessionCard({
   const progress = (players / maxPlayers) * 100;
   let span_status, bg_progress;
   if(status === "OPEN"){
-    span_status = "bg-white text-text"
-    bg_progress = "bg-text"
+    span_status = "bg-white text-primary"
+    bg_progress = "bg-primary"
   }
   else{
-    span_status = "bg-red-600 text-white"
+    span_status = "bg-colorWrong text-surface"
     bg_progress = "bg-gray-500"
   }
 
@@ -70,19 +70,18 @@ export default function SessionCard({
         <h3 className="
           text-xl
           font-bold
-          text-text
         ">
           {title}
         </h3>
 
 
         <p className="mt-2 text-l font-semibold text-gray-600">
-          📅 {time}
+          {time}
         </p>
 
 
         <p className="mt-2 text-l font-semibold text-gray-600">
-          📍 {courts}
+          {courts}
         </p>
 
 
@@ -93,13 +92,12 @@ export default function SessionCard({
             flex
             justify-between
             text-l
-            text-gray-600
           ">
             <span>
               Confirmed Players
             </span>
 
-            <span className="font-semibold text-green-700">
+            <span className="font-semibold text-primary">
               {players} / {maxPlayers}
             </span>
           </div>

@@ -1,11 +1,22 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
-import { ChevronDown, Pencil, Phone, Trash2, UserPlus, Users } from "lucide-react";
+import {
+  ChevronDown,
+  Pencil,
+  Phone,
+  Trash2,
+  UserPlus,
+  Users,
+} from "lucide-react";
 
+import EmptyListState from "@/app/components/EmptyListState";
 import ListToolbar from "@/app/components/ListToolbar";
-import WhiteCard from "@/app/components/WhiteCard";
+import ManagementListCard from "@/app/components/ManagementListCard";
+import ManagementPage from "@/app/components/ManagementPage";
+import Button from "@/app/components/ui/Button";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import StatusModal from "@/app/components/ui/StatusModal";
 
@@ -75,6 +86,8 @@ const levelOptions: PlayerLevel[] = [
 ];
 
 export default function Content() {
+  const t = useTranslations("participants");
+  const tDialog = useTranslations("dialog");
   const [participants, setParticipants] =
     useState<Participant[]>(initialParticipants);
 
@@ -88,14 +101,17 @@ export default function Content() {
   const [genderFilter, setGenderFilter] = useState<GenderFilter>("ALL");
   const [levelFilter, setLevelFilter] = useState<LevelFilter>("ALL");
 
+  /* FORM */
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   const [editingParticipant, setEditingParticipant] =
     useState<Participant | null>(null);
 
+  /* DELETE */
   const [participantToDelete, setParticipantToDelete] =
     useState<Participant | null>(null);
 
+  /* STATUS */
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const filteredParticipants = useMemo(() => {
@@ -105,7 +121,7 @@ export default function Content() {
       const matchesSearch =
         !keyword ||
         participant.name.toLowerCase().includes(keyword) ||
-        participant.phone?.toLowerCase().includes(keyword);
+        (participant.phone?.toLowerCase().includes(keyword) ?? false);
 
       const matchesGender =
         genderFilter === "ALL" || participant.gender === genderFilter;
@@ -173,6 +189,7 @@ export default function Content() {
       };
 
       setParticipants((prev) => [...prev, newParticipant]);
+
       setSuccessMessage("Participant added successfully.");
     }
 
@@ -183,42 +200,32 @@ export default function Content() {
     if (!participantToDelete) return;
 
     setParticipants((prev) =>
-      prev.filter(
-        (participant) => participant.id !== participantToDelete.id,
-      ),
+      prev.filter((participant) => participant.id !== participantToDelete.id),
     );
 
     setParticipantToDelete(null);
+
     setSuccessMessage("Participant deleted successfully.");
   };
 
   return (
-    <div className="flex min-h-full w-full flex-col gap-5 bg-bg p-5 pb-24 md:gap-8 md:p-8 md:pb-26 lg:pb-8">
-      {/* HEADER */}
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1>Participant Management</h1>
-
-          <p className="mt-1 text-sm text-gray-600 md:text-base">
-            Manage players participating in your sessions.
-          </p>
-        </div>
-
-        <button
+    <ManagementPage
+      title={t("title")}
+      description={t("description")}
+      action={
+        <Button
           type="button"
           onClick={handleOpenAdd}
-          className="flex w-fit cursor-pointer items-center gap-2 rounded-lg bg-text px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+          className="md:w-fit md:px-6"
         >
           <UserPlus size={17} />
-          Add Participant
-        </button>
-      </div>
-
-      {/* SEARCH & FILTER */}
-      <WhiteCard padding="p-0">
+          {t("add")}
+        </Button>
+      }
+      toolbar={
         <ListToolbar
           searchValue={searchInput}
-          searchPlaceholder="Search name or phone..."
+          searchPlaceholder={t("search")}
           onSearchChange={setSearchInput}
           onSearch={handleSearch}
         >
@@ -229,20 +236,23 @@ export default function Content() {
               onChange={(event) =>
                 setGenderInput(event.target.value as GenderFilter)
               }
-              className="w-full cursor-pointer appearance-none rounded-lg border border-placeholder bg-white py-3 pr-10 pl-3 text-sm text-text outline-none focus:border-button focus:ring-2 focus:ring-button/20"
+              className="w-full cursor-pointer appearance-none rounded-lg border border-placeholder bg-surface py-3 pr-10 pl-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             >
-              <option value="ALL">All Genders</option>
-              <option value="MALE">Nam</option>
-              <option value="FEMALE">Nữ</option>
-              <option value="OTHER">Khác</option>
+              <option value="ALL">{t("gender")}</option>
+
+              <option value="MALE">{t("gender")}</option>
+
+              <option value="FEMALE">{t("gender")}</option>
+
+              <option value="OTHER">{t("gender")}</option>
             </select>
-  
+
             <ChevronDown
               size={18}
               className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-placeholder"
             />
           </div>
-  
+
           {/* LEVEL FILTER */}
           <div className="relative w-full sm:w-40">
             <select
@@ -250,36 +260,36 @@ export default function Content() {
               onChange={(event) =>
                 setLevelInput(event.target.value as LevelFilter)
               }
-              className="w-full cursor-pointer appearance-none rounded-lg border border-placeholder bg-white py-3 pr-10 pl-3 text-sm text-text outline-none focus:border-button focus:ring-2 focus:ring-button/20"
+              className="w-full cursor-pointer appearance-none rounded-lg border border-placeholder bg-surface py-3 pr-10 pl-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             >
-              <option value="ALL">All Levels</option>
-  
+              <option value="ALL">{t("level")}</option>
+
               {levelOptions.map((level) => (
                 <option key={level} value={level}>
                   {level === "NEWBIE" ? "Newbie" : level}
                 </option>
               ))}
             </select>
-  
+
             <ChevronDown
               size={18}
               className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-placeholder"
             />
           </div>
         </ListToolbar>
-      </WhiteCard>
-
+      }
+    >
       {/* PARTICIPANT LIST */}
-      <WhiteCard padding="p-0" className="flex-col items-stretch">
+      <ManagementListCard>
         {/* DESKTOP / TABLET */}
         <div className="hidden overflow-hidden md:block">
           {/* TABLE HEADER */}
-          <div className="grid grid-cols-[1.5fr_1.2fr_0.8fr_0.8fr_0.6fr] bg-main0 px-5 py-4 text-sm font-semibold text-gray-700">
-            <span>Name</span>
-            <span>Phone</span>
-            <span>Gender</span>
-            <span>Level</span>
-            <span className="text-center">Actions</span>
+          <div className="grid grid-cols-[1.5fr_1.2fr_0.8fr_0.8fr_0.6fr] bg-tag px-5 py-4 text-sm font-semibold">
+            <span>{t("name")}</span>
+            <span>{t("phone")}</span>
+            <span>{t("gender")}</span>
+            <span>{t("level")}</span>
+            <span className="text-center">{t("actions")}</span>
           </div>
 
           {/* TABLE BODY */}
@@ -287,39 +297,40 @@ export default function Content() {
             filteredParticipants.map((participant) => (
               <div
                 key={participant.id}
-                className="grid grid-cols-[1.5fr_1.2fr_0.8fr_0.8fr_0.6fr] items-center border-b border-gray-100 px-5 py-6 last:border-b-0"
+                className="grid grid-cols-[1.5fr_1.2fr_0.8fr_0.8fr_0.6fr] items-center border-b border-foreground/20 px-5 py-6 last:border-b-0"
               >
                 {/* NAME */}
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-placeholder font-semibold text-text">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-tag font-semibold text-primary">
                     {participant.name.charAt(0).toUpperCase()}
                   </div>
 
-                  <span className="truncate font-semibold text-gray-900">
+                  <span className="truncate font-semibold">
                     {participant.name}
                   </span>
                 </div>
 
                 {/* PHONE */}
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm text-foreground/70">
                   {participant.phone ? (
                     <>
                       <Phone size={14} />
+
                       <span>{participant.phone}</span>
                     </>
                   ) : (
-                    <span className="text-gray-400">—</span>
+                    <span className="text-foreground/40">—</span>
                   )}
                 </div>
 
                 {/* GENDER */}
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-foreground/70">
                   {genderLabel[participant.gender]}
                 </span>
 
                 {/* LEVEL */}
                 <div>
-                  <span className="rounded-full bg-bg px-3 py-1.5 text-xs font-semibold text-text">
+                  <span className="inline-flex rounded-full bg-tag px-3 py-1.5 text-xs font-semibold text-primary">
                     {participant.level === "NEWBIE"
                       ? "Newbie"
                       : participant.level}
@@ -332,40 +343,36 @@ export default function Content() {
                     type="button"
                     aria-label={`Edit ${participant.name}`}
                     onClick={() => handleOpenEdit(participant)}
-                    className="cursor-pointer text-gray-600 transition hover:text-text"
+                    className="cursor-pointer text-primary transition hover:opacity-60"
                   >
-                    <Pencil size={16} />
+                    <Pencil size={20} />
                   </button>
 
                   <button
                     type="button"
                     aria-label={`Delete ${participant.name}`}
                     onClick={() => setParticipantToDelete(participant)}
-                    className="cursor-pointer text-red-500 transition hover:text-red-700"
+                    className="cursor-pointer text-colorWrong transition hover:opacity-60"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={20} />
                   </button>
                 </div>
               </div>
             ))
           ) : (
-            <div className="flex flex-col items-center justify-center px-5 py-16">
-              <div className="flex size-14 items-center justify-center rounded-full bg-bg text-text">
-                <Users size={24} />
-              </div>
-
-              <p className="mt-3 font-semibold text-gray-700">
-                {hasActiveFilter
+            <EmptyListState
+              icon={<Users size={24} />}
+              title={
+                hasActiveFilter
                   ? "No participants found"
-                  : "No participants yet"}
-              </p>
-
-              <p className="mt-1 text-sm text-gray-500">
-                {hasActiveFilter
+                  : "No participants yet"
+              }
+              description={
+                hasActiveFilter
                   ? "Try changing your search or filters."
-                  : "Add your first participant to this session."}
-              </p>
-            </div>
+                  : "Add your first participant to get started."
+              }
+            />
           )}
         </div>
 
@@ -375,11 +382,11 @@ export default function Content() {
             filteredParticipants.map((participant) => (
               <div
                 key={participant.id}
-                className="rounded-xl border border-gray-100 bg-white p-4"
+                className="rounded-xl border border-foreground/20 bg-surface p-4"
               >
-                {/* HEADER */}
-                <div className="flex items-center gap-3">
-                  <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-placeholder text-lg font-semibold text-text">
+                {/* MOBILE HEADER */}
+                <div className="flex items-start gap-3">
+                  <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-tag text-lg font-semibold text-primary">
                     {participant.name.charAt(0).toUpperCase()}
                   </div>
 
@@ -389,12 +396,13 @@ export default function Content() {
                     </h3>
 
                     {participant.phone ? (
-                      <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-500">
+                      <div className="mt-1 flex items-center gap-1.5 text-sm text-foreground/60">
                         <Phone size={13} />
-                        {participant.phone}
+
+                        <span>{participant.phone}</span>
                       </div>
                     ) : (
-                      <p className="mt-1 text-sm text-gray-400">
+                      <p className="mt-1 text-sm text-foreground/40">
                         No phone number
                       </p>
                     )}
@@ -403,18 +411,20 @@ export default function Content() {
 
                 {/* INFORMATION */}
                 <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg bg-bg p-3">
+                  {/* GENDER */}
                   <div>
-                    <p className="text-xs text-gray-500">Gender</p>
+                    <p className="text-xs text-foreground/60">Gender</p>
 
                     <p className="mt-1 text-sm font-semibold">
                       {genderLabel[participant.gender]}
                     </p>
                   </div>
 
+                  {/* LEVEL */}
                   <div>
-                    <p className="text-xs text-gray-500">Level</p>
+                    <p className="text-xs text-foreground/60">Level</p>
 
-                    <p className="mt-1 text-sm font-semibold text-text">
+                    <p className="mt-1 text-sm font-semibold text-primary">
                       {participant.level === "NEWBIE"
                         ? "Newbie"
                         : participant.level}
@@ -422,12 +432,12 @@ export default function Content() {
                   </div>
                 </div>
 
-                {/* ACTIONS */}
+                {/* MOBILE ACTIONS */}
                 <div className="mt-4 flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => handleOpenEdit(participant)}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm transition hover:bg-bg"
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm text-primary transition hover:opacity-60"
                   >
                     <Pencil size={14} />
                     Edit
@@ -436,7 +446,7 @@ export default function Content() {
                   <button
                     type="button"
                     onClick={() => setParticipantToDelete(participant)}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-red-200 px-3 py-2 text-sm text-red-500 transition hover:bg-red-50"
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-colorWrong/30 px-3 py-2 text-sm text-colorWrong transition hover:opacity-60"
                   >
                     <Trash2 size={14} />
                     Delete
@@ -445,26 +455,23 @@ export default function Content() {
               </div>
             ))
           ) : (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="flex size-14 items-center justify-center rounded-full bg-bg text-text">
-                <Users size={24} />
-              </div>
-
-              <p className="mt-3 font-semibold text-gray-700">
-                {hasActiveFilter
+            <EmptyListState
+              icon={<Users size={24} />}
+              title={
+                hasActiveFilter
                   ? "No participants found"
-                  : "No participants yet"}
-              </p>
-
-              <p className="mt-1 text-center text-sm text-gray-500">
-                {hasActiveFilter
+                  : "No participants yet"
+              }
+              description={
+                hasActiveFilter
                   ? "Try changing your search or filters."
-                  : "Add your first participant to get started."}
-              </p>
-            </div>
+                  : "Add your first participant to get started."
+              }
+              className="py-12"
+            />
           )}
         </div>
-      </WhiteCard>
+      </ManagementListCard>
 
       {/* ADD / EDIT */}
       <ParticipantFormModal
@@ -484,13 +491,13 @@ export default function Content() {
         onSubmit={handleSubmit}
       />
 
-      {/* DELETE */}
+      {/* DELETE CONFIRMATION */}
       <ConfirmModal
         open={participantToDelete !== null}
-        title="Confirm deletion?"
-        description={`Are you sure you want to delete participant "${
-          participantToDelete?.name ?? ""
-        }"? This action cannot be undone.`}
+        title={tDialog("titleDelete")}
+        description={tDialog("participantDescription", {
+          name: participantToDelete?.name ?? "",
+        })}
         onClose={() => setParticipantToDelete(null)}
         onConfirm={handleDelete}
       />
@@ -501,6 +508,6 @@ export default function Content() {
         description={successMessage ?? ""}
         onClose={() => setSuccessMessage(null)}
       />
-    </div>
+    </ManagementPage>
   );
 }

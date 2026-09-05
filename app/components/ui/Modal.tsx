@@ -37,13 +37,13 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-[1px]"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 p-4 backdrop-blur-[1px]"
       onClick={onClose}
     >
       <div
         role="dialog"
         aria-modal="true"
-        className={`max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-main0 shadow-xl ${className}`}
+        className={`max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-background shadow-xl ${className} scrollbar-none`}
         onClick={(event) => event.stopPropagation()}
       >
         {children}

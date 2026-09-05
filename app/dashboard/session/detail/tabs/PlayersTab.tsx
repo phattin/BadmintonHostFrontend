@@ -1,29 +1,16 @@
 "use client";
 
-import {
-  Dispatch,
-  SetStateAction,
-  useMemo,
-  useState,
-} from "react";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 
-import {
-  Phone,
-  Search,
-  Trash2,
-  UserPlus,
-} from "lucide-react";
+import { Search, Trash2, UserPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import WhiteCard from "@/app/components/WhiteCard";
 import Button from "@/app/components/ui/Button";
 import Input from "@/app/components/ui/Input";
 import Select from "@/app/components/ui/Select";
 
-import {
-  Gender,
-  PlayerLevel,
-  SessionPlayer,
-} from "../types";
+import { Gender, PlayerLevel, SessionPlayer } from "../types";
 
 interface PlayersTabProps {
   players: SessionPlayer[];
@@ -71,14 +58,13 @@ export default function PlayersTab({
   setPlayers,
   maxSlot,
 }: PlayersTabProps) {
+  const t = useTranslations("sessionDetail");
   const [search, setSearch] = useState("");
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [gender, setGender] =
-    useState<Gender>("MALE");
-  const [level, setLevel] =
-    useState<PlayerLevel>("NEWBIE");
+  const [gender, setGender] = useState<Gender>("MALE");
+  const [level, setLevel] = useState<PlayerLevel>("NEWBIE");
 
   const searchResults = useMemo(() => {
     const keyword = search.trim().toLowerCase();
@@ -88,10 +74,7 @@ export default function PlayersTab({
     return existingPlayers.filter(
       (player) =>
         player.name.toLowerCase().includes(keyword) &&
-        !players.some(
-          (sessionPlayer) =>
-            sessionPlayer.id === player.id,
-        ),
+        !players.some((sessionPlayer) => sessionPlayer.id === player.id),
     );
   }, [search, players]);
 
@@ -130,65 +113,51 @@ export default function PlayersTab({
       <WhiteCard className="flex-col items-stretch">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-semibold text-text">
-              Players
-            </h3>
+            <h3 className="text-xl font-semibold">{t("players")}</h3>
 
-            <p className="mt-1 text-sm text-gray-500">
-              {players.length}/{maxSlot} players
+            <p className="mt-1 text-sm text-forground/50">
+              {t("playersCount", { count: players.length, max: maxSlot })}
             </p>
           </div>
         </div>
 
         {/* SEARCH EXISTING */}
         <div className="mt-5">
-          <p className="text-sm font-semibold text-text">
-            Add Existing Player
-          </p>
+          <p className="text-sm font-semibold">{t("addExistingPlayer")}</p>
 
           <div className="relative mt-2">
             <Search
               size={16}
-              className="absolute top-1/2 left-3 -translate-y-1/2 text-placeholder"
+              className="absolute top-1/2 left-3 -translate-y-1/2 text-foreground/60"
             />
 
             <input
               type="text"
               value={search}
-              onChange={(event) =>
-                setSearch(event.target.value)
-              }
-              placeholder="Search player by name..."
-              className="w-full rounded-lg border border-placeholder bg-white py-3 pr-3 pl-10 text-sm outline-none focus:border-button focus:ring-2 focus:ring-button/20"
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={t("searchPlayer")}
+              className="w-full rounded-lg border border-placeholder bg-surface py-3 pr-3 pl-10 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
           {searchResults.length > 0 && (
-            <div className="mt-2 rounded-xl border border-gray-200 bg-white">
+            <div className="mt-2 rounded-xl border border-foreground/30 bg-surface">
               {searchResults.map((player) => (
                 <button
                   key={player.id}
                   type="button"
-                  onClick={() =>
-                    addExistingPlayer(player)
-                  }
-                  className="flex w-full cursor-pointer items-center justify-between border-b border-gray-100 p-3 text-left last:border-b-0 hover:bg-bg"
+                  onClick={() => addExistingPlayer(player)}
+                  className="flex w-full cursor-pointer items-center justify-between border-b border-gray-100 p-3 text-left last:border-b-0 hover:bg-background"
                 >
                   <div>
-                    <p className="font-semibold">
-                      {player.name}
-                    </p>
+                    <p className="font-semibold">{player.name}</p>
 
-                    <p className="text-xs text-gray-500">
-                      {player.level} •{" "}
-                      {player.phone ?? "No phone"}
+                    <p className="text-xs text-foreground/60">
+                      {player.level} • {player.phone ?? t("noPhone")}
                     </p>
                   </div>
 
-                  <UserPlus
-                    size={17}
-                    className="text-text"
-                  />
+                  <UserPlus size={17} className="text-text" />
                 </button>
               ))}
             </div>
@@ -197,60 +166,46 @@ export default function PlayersTab({
 
         {/* ADD NEW */}
         <div className="mt-7 border-t border-gray-100 pt-5">
-          <p className="font-semibold text-text">
-            Or Add New Player
-          </p>
+          <p className="font-semibold">{t("orAddNew")}</p>
 
           <div className="grid gap-0 md:grid-cols-2 md:gap-4">
             <Input
               id="new-player-name"
-              label="Name"
+              label={t("name")}
               value={name}
-              onChange={(event) =>
-                setName(event.target.value)
-              }
+              placeholder={t("enterPlayerName")}
+              onChange={(event) => setName(event.target.value)}
               required
             />
 
             <Input
               id="new-player-phone"
-              label="Phone"
-              icon={<Phone size={15} />}
+              label={t("phone")}
               value={phone}
-              onChange={(event) =>
-                setPhone(event.target.value)
-              }
-              placeholder="Optional"
+              onChange={(event) => setPhone(event.target.value)}
+              placeholder={t("optional")}
             />
 
             <Select
               id="new-player-gender"
-              label="Gender"
+              label={t("gender")}
               value={gender}
-              onChange={(event) =>
-                setGender(event.target.value as Gender)
-              }
+              onChange={(event) => setGender(event.target.value as Gender)}
             >
-              <option value="MALE">Nam</option>
-              <option value="FEMALE">Nữ</option>
-              <option value="OTHER">Khác</option>
+              <option value="MALE">{t("male")}</option>
+              <option value="FEMALE">{t("female")}</option>
+              <option value="OTHER">{t("other")}</option>
             </Select>
 
             <Select
               id="new-player-level"
-              label="Level"
+              label={t("level")}
               value={level}
-              onChange={(event) =>
-                setLevel(
-                  event.target.value as PlayerLevel,
-                )
-              }
+              onChange={(event) => setLevel(event.target.value as PlayerLevel)}
             >
               {levels.map((item) => (
                 <option key={item} value={item}>
-                  {item === "NEWBIE"
-                    ? "Newbie"
-                    : item}
+                  {item === "NEWBIE" ? t("newbie") : item}
                 </option>
               ))}
             </Select>
@@ -262,7 +217,7 @@ export default function PlayersTab({
             className="mt-5 md:w-fit md:px-6"
           >
             <UserPlus size={16} />
-            Add Player
+            {t("addPlayer")}
           </Button>
         </div>
       </WhiteCard>
@@ -272,16 +227,13 @@ export default function PlayersTab({
         {players.map((player) => (
           <div
             key={player.id}
-            className="flex items-center justify-between border-b border-gray-100 p-4 last:border-b-0"
+            className="flex items-center justify-between border-b border-foreground/20 p-4 last:border-b-0"
           >
             <div>
-              <p className="font-semibold">
-                {player.name}
-              </p>
+              <p className="font-semibold">{player.name}</p>
 
-              <p className="mt-1 text-sm text-gray-500">
-                {player.phone ?? "No phone"} •{" "}
-                {player.level}
+              <p className="mt-1 text-sm">
+                {player.phone ?? t("noPhone")} • {player.level}
               </p>
             </div>
 
@@ -289,12 +241,10 @@ export default function PlayersTab({
               type="button"
               onClick={() =>
                 setPlayers((prev) =>
-                  prev.filter(
-                    (item) => item.id !== player.id,
-                  ),
+                  prev.filter((item) => item.id !== player.id),
                 )
               }
-              className="cursor-pointer text-red-500"
+              className="cursor-pointer text-colorWrong"
             >
               <Trash2 size={17} />
             </button>

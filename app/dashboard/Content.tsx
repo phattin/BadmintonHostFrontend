@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import WhiteCard from "@/app/components/WhiteCard";
 import Button from "@/app/components/ui/Button";
 import StatCard from "./StatCard";
@@ -8,29 +9,29 @@ import { Plus, MapPin, Bell } from "lucide-react";
 import Image from "next/image";
 
 export default function Content() {
+  const t = useTranslations("dashboard");
   const stats = [
     {
-      title: "Monthly Revenue",
+      title: t("monthlyRevenue"),
       value: "$12,450",
-      description: "+15% from last month",
+      description: t("revenueChange"),
       icon: "/revenue.svg",
     },
     {
-      title: "Sessions Organized",
+      title: t("sessionsOrganized"),
       value: "128",
-      description: "12 sessions today",
+      description: t("sessionsToday"),
       icon: "/badminton.svg",
-      iconBgColor: "bg-main3",
     },
     {
-      title: "Total Outstanding",
+      title: t("totalOutstanding"),
       value: "$450",
-      description: "Pending collection from players",
+      description: t("pendingCollection"),
       icon: "/outstanding.svg",
-      iconBgColor: "bg-[#FFDAD6]",
-      valueColor: "text-[#BA1A1A]",
-      descriptionColor: "text-[#40493E]",
-      borderColor: "border-[#FFDAD6]",
+      iconBgColor: "bg-bgWrong",
+      valueColor: "text-colorWrong",
+      descriptionColor: "text-foreground",
+      borderColor: "border-colorWrong",
     },
   ];
   const sessions = [
@@ -55,15 +56,15 @@ export default function Content() {
   ] as const;
   const summaryData = [
     {
-      label: "Total Slots Available",
+      label: t("totalSlots"),
       value: "64",
     },
     {
-      label: "Slots Booked",
+      label: t("slotsBooked"),
       value: "48",
     },
     {
-      label: "Occupancy Rate",
+      label: t("occupancyRate"),
       value: "75%",
     },
   ];
@@ -86,42 +87,40 @@ export default function Content() {
   };
 
   return (
-    <div className="bg-bg w-full p-5 pb-24 md:p-8 md:pb-26 lg:pb-5 flex flex-col justify-between gap-5 md:gap-8">
+    <div className="w-full p-5 pb-24 md:p-8 md:pb-26 lg:pb-5 flex flex-col justify-between gap-5 md:gap-8">
       {/* HEADER */}
       <div>
         <WhiteCard>
           <div className="hidden lg:flex flex-col">
-            <h1>Welcome back, Host!</h1>
-            <p className="mt-2 text-l">
-              Here is the overview of your courts today
-            </p>
+            <h1>{t("welcomeTitle")}</h1>
+            <p className="mt-2 text-l">{t("overview")}</p>
           </div>
           <div className="flex lg:hidden">
             <Image
               className="size-15"
               src="/logo_badminton.webp"
-              width={72}
-              height={72}
+              width={24}
+              height={24}
               alt="Logo"
             />
             <div>
-              <h1>Host Badminton</h1>
-              <span>Welcome back, Host!</span>
+              <h1>{t("appName")}</h1>
+              <span>{t("welcomeTitle")}</span>
             </div>
           </div>
           <div className="flex items-center md:gap-5">
             <button
-              aria-label="Notifications"
-              className="hidden md:flex size-10 rounded-full bg-placeholder items-center justify-center"
+              aria-label={t("notifications")}
+              className="hidden md:flex size-10 rounded-full bg-tag items-center justify-center"
             >
-              <Bell size={17} />
+              <Bell size={24} />
             </button>
             <Image
               src="/logo_badminton.webp"
               width={72}
               height={72}
               alt="avatar"
-              className="size-13 md:size-15 rounded-full border-3 border-main3"
+              className="size-13 md:size-15 rounded-full border-3 border-tag"
             />
           </div>
         </WhiteCard>
@@ -138,9 +137,9 @@ export default function Content() {
               <Image
                 src={stat.icon}
                 alt={stat.title}
-                width={72}
-                height={72}
-                className="size-5"
+                width={24}
+                height={24}
+                style={{ width: "auto", height: "auto" }}
               />
             }
             iconBgColor={stat.iconBgColor}
@@ -157,24 +156,24 @@ export default function Content() {
           <div className="flex flex-col justify-between gap-3 md:gap-5">
             <div className="flex justify-between items-center gap-5">
               <h3 className=" text-xl md:text-2xl font-semibold">
-                In Progress
+                {t("inProgress")}
               </h3>
               <button
                 type="button"
                 onClick={handleViewSessionDetail}
-                className="cursor-pointer text-sm font-semibold text-text hover:underline md:text-lg"
+                className="cursor-pointer text-primary text-sm font-semibold hover:underline md:text-lg"
               >
-                View Detail
+                {t("viewDetail")}
               </button>
             </div>
-            <WhiteCard className="border-l-4 border-main3 flex-col items-start lg:flex-row gap-3">
+            <WhiteCard className="border-l-4 border-tag flex-col items-start lg:flex-row gap-3">
               <div>
                 <div className="flex gap-3">
-                  <span className="bg-placeholder text-text px-3 py-1 rounded text-sm font-semibold">
+                  <span className="bg-tag px-3 py-1 rounded text-sm font-semibold">
                     COURT 1 & 2
                   </span>
-                  <span className="bg-red-100  text-red-600 px-3 py-1 rounded text-sm font-semibold">
-                    ● Live
+                  <span className="bg-bgWrong  text-colorWrong px-3 py-1 rounded text-sm font-semibold">
+                    ● {t("live")}
                   </span>
                 </div>
                 <h3 className="font-bold text-xl mt-3">
@@ -183,17 +182,17 @@ export default function Content() {
                 <p className="text-l">◷ 18:00 - 20:00</p>
               </div>
               <div className="flex gap-4">
-                <div className="bg-bg rounded-xl px-5 py-3 text-center">
-                  <p className="text-sm font-semibold text-gray-600">
-                    Checked In
+                <div className="bg-background rounded-xl px-5 py-3 text-center">
+                  <p className="text-sm font-semibold">
+                    {t("checkedIn")}
                   </p>
-                  <p className="text-2xl font-bold text-text">14/16</p>
+                  <p className="text-2xl font-bold ">14/16</p>
                 </div>
-                <div className="bg-bg rounded-xl px-5 py-3 text-center">
-                  <p className="text-sm font-semibold text-gray-600">
-                    Active Matches
+                <div className="bg-background rounded-xl px-5 py-3 text-center">
+                  <p className="text-sm font-semibold">
+                    {t("activeMatches")}
                   </p>
-                  <p className="text-2xl font-bold text-text">2</p>
+                  <p className="text-2xl font-bold">2</p>
                 </div>
               </div>
             </WhiteCard>
@@ -201,14 +200,14 @@ export default function Content() {
           <div className="flex flex-col justify-between gap-3 md:gap-5">
             <div className="flex justify-between items-center gap-5">
               <h3 className="text-xl md:text-2xl font-semibold">
-                Upcoming Sessions
+                {t("upcoming")}
               </h3>
               <button
                 type="button"
                 onClick={handleViewAllSessions}
-                className="cursor-pointer text-sm font-semibold text-text hover:underline md:text-lg"
+                className="cursor-pointer text-sm font-semibold text-primary hover:underline md:text-lg"
               >
-                View All
+                {t("viewAll")}
               </button>
             </div>
             <div className="flex flex-col lg:flex-row justify-between gap-5">
@@ -221,31 +220,31 @@ export default function Content() {
         {/* PROGRESS RIGHT */}
         <div className="flex flex-col lg:w-[32%] justify-between gap-3 md:gap-5">
           <WhiteCard className="hidden md:flex flex-col gap-5 items-start">
-            <h3 className="text-2xl font-semibold">Quick Actions</h3>
+            <h3 className="text-2xl font-semibold">{t("quickActions")}</h3>
             <div className="flex flex-col gap-4 w-full">
               <Button
                 type="button"
-                aria-label="Create session"
+                aria-label={t("createSession")}
                 onClick={handleCreateSession}
               >
                 <Plus size={15} />
-                Create a session
+                {t("createSession")}
               </Button>
               <Button
                 type="button"
-                aria-label="Create venue"
+                aria-label={t("createVenue")}
                 onClick={handleCreateVenue}
                 className="border border-text"
                 background="bg-background"
-                color="text-text"
+                color="text-foreground"
               >
                 <MapPin size={15} />
-                Create a venue
+                {t("createVenue")}
               </Button>
             </div>
           </WhiteCard>
           <WhiteCard className="flex-col items-start h-full justify-start">
-            <h3 className="text-2xl font-semibold">Total Summary</h3>
+            <h3 className="text-2xl font-semibold">{t("totalSummary")}</h3>
             <div className="mt-4 w-full">
               {summaryData.map((item) => (
                 <div
@@ -259,8 +258,8 @@ export default function Content() {
                       text-l
                     "
                 >
-                  <span className="text-gray-600">{item.label}</span>
-                  <span className="font-bold text-text">{item.value}</span>
+                  <span>{item.label}</span>
+                  <span className="font-bold">{item.value}</span>
                 </div>
               ))}
             </div>
