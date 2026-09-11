@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
-import { useRouter } from "next/navigation";
 import {
   CalendarClock,
   ChevronDown,
@@ -12,9 +12,13 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
+import EmptyListState from "@/app/components/EmptyListState";
 import ListToolbar from "@/app/components/ListToolbar";
-import WhiteCard from "@/app/components/WhiteCard";
+import ManagementListCard from "@/app/components/ManagementListCard";
+import ManagementPage from "@/app/components/ManagementPage";
+import Button from "@/app/components/ui/Button";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import StatusModal from "@/app/components/ui/StatusModal";
 
@@ -102,42 +106,47 @@ const initialSessions: Session[] = [
   },
 ];
 
-const statusLabel: Record<SessionStatus, string> = {
-  DRAFT: "Draft",
-  OPEN: "Open",
-  IN_PROGRESS: "In Progress",
-  FINISHED: "Finished",
-  SETTLED: "Settled",
-  CLOSED: "Closed",
-};
-
 const statusStyle: Record<SessionStatus, string> = {
-  DRAFT: "bg-gray-200 text-gray-600",
-  OPEN: "bg-green-100 text-green-700",
-  IN_PROGRESS: "bg-main2 text-text",
-  FINISHED: "bg-[#D8EFD9] text-[#49644B]",
-  SETTLED: "bg-gray-200 text-gray-600",
-  CLOSED: "bg-gray-300 text-gray-600",
+  DRAFT: "bg-foreground/10 text-foreground/70",
+  OPEN: "bg-placeholder text-primary",
+  IN_PROGRESS: "bg-primary text-surface",
+  FINISHED: "bg-primary/15 text-primary",
+  SETTLED: "bg-tag text-primary",
+  CLOSED: "bg-foreground/15 text-foreground/60",
 };
 
 export default function Content() {
   const router = useRouter();
+  const t = useTranslations("sessions");
+  const tDialog = useTranslations("dialog");
+  const getStatusLabel = (status: SessionStatus) =>
+    t(
+      status === "DRAFT"
+        ? "draft"
+        : status === "OPEN"
+          ? "open"
+          : status === "IN_PROGRESS"
+            ? "inProgress"
+            : status === "FINISHED"
+              ? "finished"
+              : status === "SETTLED"
+                ? "settled"
+                : "closed",
+    );
 
   const [sessions, setSessions] = useState<Session[]>(initialSessions);
 
+  /* SEARCH INPUT */
   const [searchInput, setSearchInput] = useState("");
-  const [statusInput, setStatusInput] =
-    useState<StatusFilter>("ALL");
+  const [statusInput, setStatusInput] = useState<StatusFilter>("ALL");
 
+  /* APPLIED FILTER */
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] =
-    useState<StatusFilter>("ALL");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
 
-  const [sessionToDelete, setSessionToDelete] =
-    useState<Session | null>(null);
+  const [sessionToDelete, setSessionToDelete] = useState<Session | null>(null);
 
-  const [successMessage, setSuccessMessage] =
-    useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const filteredSessions = useMemo(() => {
     const keyword = searchQuery.trim().toLowerCase();
@@ -149,32 +158,40 @@ export default function Content() {
         session.address.toLowerCase().includes(keyword);
 
       const matchesStatus =
-        statusFilter === "ALL" ||
-        session.status === statusFilter;
+        statusFilter === "ALL" || session.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
   }, [sessions, searchQuery, statusFilter]);
 
-  const hasActiveFilter =
-    searchQuery.trim() !== "" || statusFilter !== "ALL";
+  const hasActiveFilter = searchQuery.trim() !== "" || statusFilter !== "ALL";
 
   const handleSearch = () => {
     setSearchQuery(searchInput);
     setStatusFilter(statusInput);
   };
 
-  const handleDelete = () => {
+  const handleOpenCreateSession = () => {
+    router.push("/dashboard/session/new");
+  };
+
+  const handleViewSession = (sessionId: number) => {
+    router.push(`/dashboard/session/${sessionId}`);
+  };
+
+  const handleEditSession = (sessionId: number) => {
+    router.push(`/dashboard/session/${sessionId}/edit`);
+  };
+
+  const handleDeleteSession = () => {
     if (!sessionToDelete) return;
 
     setSessions((prev) =>
-      prev.filter(
-        (session) => session.id !== sessionToDelete.id,
-      ),
+      prev.filter((session) => session.id !== sessionToDelete.id),
     );
 
     setSessionToDelete(null);
-    setSuccessMessage("Session deleted successfully.");
+    setSuccessMessage(t("deleted"));
   };
 
   const formatPrice = (price: number) => {
@@ -184,115 +201,102 @@ export default function Content() {
   };
 
   return (
-    <div className="flex min-h-full w-full flex-col gap-5 bg-bg p-5 pb-24 md:gap-8 md:p-8 md:pb-26 lg:pb-8">
-      {/* HEADER */}
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1>Session Management</h1>
-
-          <p className="mt-1 text-sm text-gray-600 md:text-base">
-            Manage badminton sessions, schedules and participants.
-          </p>
-        </div>
-
-        <button
+    <ManagementPage
+      title={t("title")}
+      description={t("description")}
+      action={
+        <Button
           type="button"
-          onClick={() => router.push("/dashboard/session/new")}
-          className="flex w-fit cursor-pointer items-center gap-2 rounded-lg bg-text px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+          onClick={handleOpenCreateSession}
+          className="md:w-fit md:px-6"
         >
           <Plus size={17} />
-          Plan Session
-        </button>
-      </div>
-
-      {/* SEARCH */}
-      <WhiteCard padding="p-0">
+          {t("plan")}
+        </Button>
+      }
+      toolbar={
         <ListToolbar
           searchValue={searchInput}
-          searchPlaceholder="Search venue or address..."
+          searchPlaceholder={t("search")}
           onSearchChange={setSearchInput}
           onSearch={handleSearch}
         >
+          {/* STATUS FILTER */}
           <div className="relative w-full sm:w-45">
             <select
               value={statusInput}
               onChange={(event) =>
-                setStatusInput(
-                  event.target.value as StatusFilter,
-                )
+                setStatusInput(event.target.value as StatusFilter)
               }
-              className="w-full cursor-pointer appearance-none rounded-lg border border-placeholder bg-white py-3 pr-10 pl-3 text-sm text-text outline-none focus:border-button focus:ring-2 focus:ring-button/20"
+              className="w-full cursor-pointer appearance-none rounded-lg border border-placeholder bg-surface py-3 pr-10 pl-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             >
-              <option value="ALL">All Status</option>
-              <option value="DRAFT">Draft</option>
-              <option value="OPEN">Open</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="FINISHED">Finished</option>
-              <option value="SETTLED">Settled</option>
-              <option value="CLOSED">Closed</option>
+              <option value="ALL">{t("allStatus")}</option>
+              <option value="DRAFT">{t("draft")}</option>
+              <option value="OPEN">{t("open")}</option>
+              <option value="IN_PROGRESS">{t("inProgress")}</option>
+              <option value="FINISHED">{t("finished")}</option>
+              <option value="SETTLED">{t("settled")}</option>
+              <option value="CLOSED">{t("closed")}</option>
             </select>
+
             <ChevronDown
               size={18}
               className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-placeholder"
             />
           </div>
         </ListToolbar>
-      </WhiteCard>
-
+      }
+    >
       {/* SESSION LIST */}
-      <WhiteCard padding="p-0" className="flex-col items-stretch">
+      <ManagementListCard>
         {/* DESKTOP */}
         <div className="hidden overflow-hidden lg:block">
-          <div className="grid grid-cols-[1.7fr_0.7fr_0.6fr_0.9fr_0.9fr_1.1fr_0.9fr_0.6fr] bg-main0 px-5 py-4 text-sm font-semibold text-gray-700">
-            <span>Address / Venue</span>
-            <span>Slot</span>
-            <span>Courts</span>
-            <span>Price Male</span>
-            <span>Price Female</span>
-            <span>Time</span>
-            <span>Status</span>
-            <span className="text-center">Actions</span>
+          {/* TABLE HEADER */}
+          <div className="grid grid-cols-[1.7fr_0.7fr_0.6fr_0.9fr_0.9fr_1.1fr_0.9fr_0.6fr] bg-tag px-5 py-4 text-sm font-semibold">
+            <span>{t("addressVenue")}</span>
+            <span>{t("slot")}</span>
+            <span>{t("courts")}</span>
+            <span>{t("priceMale")}</span>
+            <span>{t("priceFemale")}</span>
+            <span>{t("time")}</span>
+            <span>{t("status")}</span>
+            <span className="text-center">{t("actions")}</span>
           </div>
 
+          {/* TABLE BODY */}
           {filteredSessions.length > 0 ? (
             filteredSessions.map((session) => (
               <div
                 key={session.id}
-                className="grid grid-cols-[1.7fr_0.7fr_0.6fr_0.9fr_0.9fr_1.1fr_0.9fr_0.6fr] items-center border-b border-gray-100 px-5 py-5 last:border-b-0"
+                className="grid grid-cols-[1.7fr_0.7fr_0.6fr_0.9fr_0.9fr_1.1fr_0.9fr_0.6fr] items-center border-b border-foreground/20 px-5 py-5 last:border-b-0"
               >
                 {/* VENUE */}
                 <div className="min-w-0">
-                  <p className="truncate font-semibold text-gray-900">
-                    {session.venueName}
-                  </p>
+                  <p className="truncate font-semibold">{session.venueName}</p>
 
-                  <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                  <div className="mt-1 flex items-center gap-1.5 text-xs text-foreground/60">
                     <MapPin size={11} />
-                    <span className="truncate">
-                      {session.address}
-                    </span>
+
+                    <span className="truncate">{session.address}</span>
                   </div>
                 </div>
 
                 {/* SLOT */}
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold">
-                      {session.currentSlots}/{session.maxSlots}
-                    </span>
-                  </div>
+                  <span className="text-sm font-semibold">
+                    {session.currentSlots}/{session.maxSlots}
+                  </span>
                 </div>
 
                 {/* COURT */}
-                <span className="text-sm">
-                  {session.totalCourt}
-                </span>
+                <span className="text-sm">{session.totalCourt}</span>
 
-                {/* PRICE */}
+                {/* PRICE MALE */}
                 <span className="text-sm">
                   {formatPrice(session.priceMale)}
                 </span>
 
+                {/* PRICE FEMALE */}
                 <span className="text-sm">
                   {formatPrice(session.priceFemale)}
                 </span>
@@ -303,7 +307,7 @@ export default function Content() {
                     {session.startTime} - {session.endTime}
                   </p>
 
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-foreground/60">
                     {session.date}
                   </p>
                 </div>
@@ -311,56 +315,48 @@ export default function Content() {
                 {/* STATUS */}
                 <div>
                   <span
-                    className={`rounded-full px-3 py-1.5 text-xs font-semibold ${statusStyle[session.status]}`}
+                    className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusStyle[session.status]}`}
                   >
-                    {statusLabel[session.status]}
+                    {getStatusLabel(session.status)}
                   </span>
                 </div>
 
-                {/* ACTION */}
+                {/* ACTIONS */}
                 <div className="flex items-center justify-center gap-3">
                   <button
                     type="button"
                     aria-label={`View ${session.venueName}`}
-                    onClick={() =>
-                      router.push(
-                        `/dashboard/session/${session.id}`,
-                      )
-                    }
-                    className="cursor-pointer text-text transition hover:opacity-60"
+                    onClick={() => handleViewSession(session.id)}
+                    className="cursor-pointer text-foreground transition hover:opacity-60"
                   >
-                    <Eye size={16} />
+                    <Eye size={20} />
                   </button>
 
                   <button
                     type="button"
                     aria-label={`Edit ${session.venueName}`}
-                    onClick={() =>
-                      router.push(
-                        `/dashboard/session/${session.id}/edit`,
-                      )
-                    }
-                    className="cursor-pointer text-gray-600 transition hover:text-text"
+                    onClick={() => handleEditSession(session.id)}
+                    className="cursor-pointer text-primary transition hover:opacity-60"
                   >
-                    <Pencil size={16} />
+                    <Pencil size={20} />
                   </button>
 
                   <button
                     type="button"
                     aria-label={`Delete ${session.venueName}`}
-                    onClick={() =>
-                      setSessionToDelete(session)
-                    }
-                    className="cursor-pointer text-red-500 transition hover:text-red-700"
+                    onClick={() => setSessionToDelete(session)}
+                    className="cursor-pointer text-colorWrong transition hover:opacity-60"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={20} />
                   </button>
                 </div>
               </div>
             ))
           ) : (
-            <EmptySession
-              filtered={hasActiveFilter}
+            <EmptyListState
+              icon={<CalendarClock size={24} />}
+              title={hasActiveFilter ? t("noResults") : t("noItems")}
+              description={hasActiveFilter ? t("trySearch") : t("planFirst")}
             />
           )}
         </div>
@@ -371,162 +367,151 @@ export default function Content() {
             filteredSessions.map((session) => (
               <div
                 key={session.id}
-                className="rounded-xl border border-gray-100 bg-white p-4"
+                className="rounded-xl border border-foreground/20 bg-surface p-4"
               >
+                {/* MOBILE HEADER */}
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h3 className="truncate font-semibold">
-                      {session.venueName}
-                    </h3>
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-tag text-primary">
+                      <MapPin size={18} />
+                    </div>
 
-                    <div className="mt-1 flex items-start gap-1.5 text-sm text-gray-500">
-                      <MapPin
-                        size={13}
-                        className="mt-0.5 shrink-0"
-                      />
-                      <span>{session.address}</span>
+                    <div className="min-w-0">
+                      <h3 className="truncate font-semibold">
+                        {session.venueName}
+                      </h3>
+
+                      <p className="mt-1 text-sm text-foreground/60">
+                        {session.address}
+                      </p>
                     </div>
                   </div>
 
                   <span
                     className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold ${statusStyle[session.status]}`}
                   >
-                    {statusLabel[session.status]}
+                    {getStatusLabel(session.status)}
                   </span>
                 </div>
 
+                {/* MOBILE INFORMATION */}
                 <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg bg-bg p-3">
+                  {/* SLOT */}
                   <div>
-                    <p className="text-xs text-gray-500">
-                      Slots
-                    </p>
+                    <p className="text-xs text-foreground/60">{t("slot")}</p>
+
                     <p className="mt-1 font-semibold">
                       {session.currentSlots}/{session.maxSlots}
                     </p>
                   </div>
 
+                  {/* COURT */}
                   <div>
-                    <p className="text-xs text-gray-500">
-                      Courts
-                    </p>
-                    <p className="mt-1 font-semibold text-text">
+                    <p className="text-xs text-foreground/60">{t("courts")}</p>
+
+                    <p className="mt-1 font-semibold text-primary">
                       {session.totalCourt}
                     </p>
                   </div>
 
+                  {/* PRICE MALE */}
                   <div>
-                    <p className="text-xs text-gray-500">
-                      Male
+                    <p className="text-xs text-foreground/60">
+                      {t("priceMale")}
                     </p>
+
                     <p className="mt-1 text-sm font-semibold">
                       {formatPrice(session.priceMale)}
                     </p>
                   </div>
 
+                  {/* PRICE FEMALE */}
                   <div>
-                    <p className="text-xs text-gray-500">
-                      Female
+                    <p className="text-xs text-foreground/60">
+                      {t("priceFemale")}
                     </p>
+
                     <p className="mt-1 text-sm font-semibold">
                       {formatPrice(session.priceFemale)}
                     </p>
                   </div>
 
+                  {/* SCHEDULE */}
                   <div className="col-span-2">
-                    <p className="text-xs text-gray-500">
-                      Schedule
+                    <p className="text-xs text-foreground/60">
+                      {t("schedule")}
                     </p>
 
-                    <div className="mt-1 flex items-center gap-2 text-sm font-semibold">
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-sm font-semibold">
                       <CalendarClock size={14} />
-                      {session.startTime} - {session.endTime}
-                      <span className="font-normal text-gray-500">
+
+                      <span>
+                        {session.startTime} - {session.endTime}
+                      </span>
+
+                      <span className="font-normal text-foreground/60">
                         {session.date}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 flex justify-end gap-2">
+                {/* MOBILE ACTIONS */}
+                <div className="mt-4 flex flex-wrap justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() =>
-                      router.push(
-                        `/dashboard/session/${session.id}`,
-                      )
-                    }
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-placeholder px-3 py-2 text-sm text-text"
+                    onClick={() => handleViewSession(session.id)}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-placeholder px-3 py-2 text-sm text-foreground transition hover:opacity-60"
                   >
                     <Eye size={14} />
-                    View
+                    {t("view")}
                   </button>
 
                   <button
                     type="button"
-                    onClick={() =>
-                      router.push(
-                        `/dashboard/session/${session.id}/edit`,
-                      )
-                    }
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                    onClick={() => handleEditSession(session.id)}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm text-primary transition hover:opacity-60"
                   >
                     <Pencil size={14} />
-                    Edit
+                    {t("edit")}
                   </button>
 
                   <button
                     type="button"
-                    onClick={() =>
-                      setSessionToDelete(session)
-                    }
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-red-200 px-3 py-2 text-sm text-red-500"
+                    onClick={() => setSessionToDelete(session)}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-colorWrong/30 px-3 py-2 text-sm text-colorWrong transition hover:opacity-60"
                   >
                     <Trash2 size={14} />
+                    {t("delete")}
                   </button>
                 </div>
               </div>
             ))
           ) : (
-            <EmptySession filtered={hasActiveFilter} />
+            <EmptyListState
+              icon={<CalendarClock size={24} />}
+              title={hasActiveFilter ? t("noResults") : t("noItems")}
+              description={hasActiveFilter ? t("trySearch") : t("planFirst")}
+            />
           )}
         </div>
-      </WhiteCard>
+      </ManagementListCard>
 
+      {/* DELETE CONFIRMATION */}
       <ConfirmModal
         open={sessionToDelete !== null}
-        title="Confirm deletion?"
-        description={`Are you sure you want to delete the session at "${
-          sessionToDelete?.venueName ?? ""
-        }"? This action cannot be undone.`}
+        title={tDialog("titleDelete")}
+        description={tDialog("sessionDescription")}
         onClose={() => setSessionToDelete(null)}
-        onConfirm={handleDelete}
+        onConfirm={handleDeleteSession}
       />
 
+      {/* SUCCESS */}
       <StatusModal
         open={successMessage !== null}
         description={successMessage ?? ""}
         onClose={() => setSuccessMessage(null)}
       />
-    </div>
-  );
-}
-
-function EmptySession({ filtered }: { filtered: boolean }) {
-  return (
-    <div className="flex flex-col items-center justify-center px-5 py-16">
-      <div className="flex size-14 items-center justify-center rounded-full bg-bg text-text">
-        <CalendarClock size={24} />
-      </div>
-
-      <p className="mt-3 font-semibold text-gray-700">
-        {filtered ? "No sessions found" : "No sessions yet"}
-      </p>
-
-      <p className="mt-1 text-center text-sm text-gray-500">
-        {filtered
-          ? "Try changing your search or filters."
-          : "Plan your first badminton session."}
-      </p>
-    </div>
+    </ManagementPage>
   );
 }

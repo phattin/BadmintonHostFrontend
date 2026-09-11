@@ -21,9 +21,9 @@ export default function StatCard({
   value,
   description,
   icon,
-  iconBgColor = "bg-placeholder",
-  valueColor = "text-gray-900",
-  descriptionColor = "text-text",
+  iconBgColor = "bg-tag",
+  valueColor = "text-foreground",
+  descriptionColor = "text-btn",
   borderColor = "border-transparent",
 }: StatCardProps) {
   return (

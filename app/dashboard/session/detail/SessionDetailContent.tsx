@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { ArrowLeft, CalendarClock, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -11,11 +12,7 @@ import MatchTrackingTab from "./tabs/MatchTrackingTab";
 import PaymentsTab from "./tabs/PaymentsTab";
 import PlayersTab from "./tabs/PlayersTab";
 import SettlementTab from "./tabs/SettlementTab";
-import {
-  Match,
-  SessionDetail,
-  SessionPlayer,
-} from "./types";
+import { Match, SessionDetail, SessionPlayer } from "./types";
 
 type Tab =
   | "GENERAL"
@@ -124,17 +121,15 @@ const tabs: {
 
 export default function SessionDetailContent() {
   const router = useRouter();
+  const t = useTranslations("sessionDetail");
 
   const [activeTab, setActiveTab] = useState<Tab>("GENERAL");
 
-  const [session, setSession] =
-    useState<SessionDetail>(initialSession);
+  const [session, setSession] = useState<SessionDetail>(initialSession);
 
-  const [players, setPlayers] =
-    useState<SessionPlayer[]>(initialPlayers);
+  const [players, setPlayers] = useState<SessionPlayer[]>(initialPlayers);
 
-  const [matches, setMatches] =
-    useState<Match[]>(initialMatches);
+  const [matches, setMatches] = useState<Match[]>(initialMatches);
 
   const [actualShuttleCock, setActualShuttleCock] = useState(
     initialSession.expectedShuttleCock,
@@ -157,14 +152,14 @@ export default function SessionDetailContent() {
   };
 
   return (
-    <div className="min-h-full w-full bg-bg pb-24 lg:pb-8">
+    <div className="min-h-full w-full pb-24 lg:pb-8">
       {/* HEADER */}
-      <div className="border-b border-placeholder/30 bg-main0 px-5 py-5 md:px-8">
+      <div className="border-b border-tag/30 bg-main0 px-5 py-5 md:px-8">
         <div className="flex items-start gap-4">
           <button
             type="button"
             onClick={() => router.push("/dashboard/session")}
-            className="mt-1 cursor-pointer text-text transition hover:opacity-60"
+            className="mt-1 cursor-pointer transition hover:opacity-60"
           >
             <ArrowLeft size={21} />
           </button>
@@ -172,22 +167,16 @@ export default function SessionDetailContent() {
           <div>
             <h1>{session.title}</h1>
 
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-600">
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm">
               <div className="flex items-center gap-1.5">
                 <CalendarClock size={14} />
 
                 <span>
-                  {new Date(session.startTime).toLocaleString(
-                    "vi-VN",
-                  )}{" "}
-                  -{" "}
-                  {new Date(session.endTime).toLocaleTimeString(
-                    "vi-VN",
-                    {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    },
-                  )}
+                  {new Date(session.startTime).toLocaleString("vi-VN")} -{" "}
+                  {new Date(session.endTime).toLocaleTimeString("vi-VN", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </span>
               </div>
 
@@ -214,11 +203,23 @@ export default function SessionDetailContent() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`cursor-pointer border-b-2 px-1 pb-3 text-sm font-semibold transition ${
                   activeTab === tab.id
-                    ? "border-text text-text"
-                    : "border-transparent text-gray-500 hover:text-text"
+                    ? "border-text"
+                    : "border-transparent text-foreground/60 hover:text-primary"
                 }`}
               >
-                {tab.label}
+                {t(
+                  tab.id === "GENERAL"
+                    ? "generalInfo"
+                    : tab.id === "PLAYERS"
+                      ? "players"
+                      : tab.id === "ATTENDANCE"
+                        ? "attendance"
+                        : tab.id === "MATCHES"
+                          ? "matchTracking"
+                          : tab.id === "SETTLEMENT"
+                            ? "settlement"
+                            : "payments",
+                )}
               </button>
             ))}
           </div>
@@ -255,10 +256,7 @@ export default function SessionDetailContent() {
         )}
 
         {activeTab === "MATCHES" && (
-          <MatchTrackingTab
-            matches={matches}
-            setMatches={setMatches}
-          />
+          <MatchTrackingTab matches={matches} setMatches={setMatches} />
         )}
 
         {activeTab === "SETTLEMENT" && (
@@ -266,9 +264,7 @@ export default function SessionDetailContent() {
             session={session}
             players={players}
             actualShuttleCock={actualShuttleCock}
-            onActualShuttleCockChange={
-              setActualShuttleCock
-            }
+            onActualShuttleCockChange={setActualShuttleCock}
             onPriceChange={(priceMale, priceFemale) =>
               setSession((prev) => ({
                 ...prev,

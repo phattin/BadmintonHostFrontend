@@ -10,20 +10,20 @@ export default function Button({
   icon,
   children,
   className = "",
-  background = "bg-btn_content",
-  color = "text-white",
+  background = "bg-primary",
+  color = "text-surface",
   ...props
 }: ButtonProps) {
   return (
     <button
       className={`
         flex
-        w-full
         items-center
         justify-center
         gap-2
         rounded-lg
-        p-4
+        px-6
+        py-3
         text-[14px]
         font-bold
         transition

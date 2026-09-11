@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 interface SidebarItemProps {
   icon: ReactNode;
@@ -20,7 +20,7 @@ export default function SidebarItem({
     <Link
       href={href}
       className={`flex flex-col lg:flex-row cursor-pointer items-center lg:gap-3 rounded-full lg:rounded-lg p-2 md:p-3 text-sm md:text-l font-medium ${
-        active ? "bg-placeholder text-text" : "text-gray-700 hover:bg-bg"
+        active ? "bg-tag text-primary" : "text-forground hover:bg-background"
       }`}
     >
       {icon}

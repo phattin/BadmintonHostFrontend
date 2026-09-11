@@ -1,30 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import Input from "../components/ui/Input";
-import Button from "../components/ui/Button";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import Input from "@/app/components/ui/Input";
+import Button from "@/app/components/ui/Button";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 export default function LoginPanel() {
   const [showPassword, setShowPassword] = useState(false);
+  const t = useTranslations("auth");
 
   return (
     <div className="w-[60%] h-full p-12">
-      <h2 className="font-extrabold text-5xl text-button">Log In</h2>
+      <h2 className="font-extrabold text-5xl text-button">{t("loginTitle")}</h2>
       <Input
         id="email"
-        label="Email:"
+        label={t("email")}
         type="email"
-        placeholder="Enter your email"
+        placeholder={t("enterEmail")}
         icon={<Mail size={18} />}
       />
       <Input
         id="password"
-        label="Password:"
+        label={t("password")}
         type={showPassword ? "text" : "password"}
-        placeholder="Enter your password"
+        placeholder={t("enterPassword")}
         icon={<Lock size={18} />}
         rightIcon={
           <button
@@ -37,15 +40,15 @@ export default function LoginPanel() {
         }
       />
       <a className="flex w-fit mt-3 ml-auto text-text font-bold" href="#">
-        Forgot password
+        {t("forgotPassword")}
       </a>
 
-      <Button className="mt-3">Log in</Button>
+      <Button className="mt-3">{t("logIn")}</Button>
 
       <div className="mt-8 flex items-center gap-3">
         <div className="h-px flex-1 bg-gray-300"></div>
 
-        <span className="text-sm text-gray-500">Or continue with</span>
+        <span className="text-sm text-gray-500">{t("orContinueWith")}</span>
 
         <div className="h-px flex-1 bg-gray-300"></div>
       </div>
@@ -101,10 +104,13 @@ export default function LoginPanel() {
       </div>
 
       <p className="mt-8 text-center text-sm text-gray-700">
-        Don&apos;t have an account?{" "}
-        <a href="/register" className="font-semibold text-text hover:underline">
-          Sign up now
-        </a>
+        {t("noAccount")}{" "}
+        <Link
+          href="/register"
+          className="font-semibold text-text hover:underline"
+        >
+          {t("signUpNow")}
+        </Link>
       </p>
     </div>
   );

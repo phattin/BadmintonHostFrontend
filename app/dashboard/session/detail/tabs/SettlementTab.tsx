@@ -1,15 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useFormatter, useTranslations } from "next-intl";
 
-import {
-  Check,
-  CircleDollarSign,
-  Pencil,
-  RotateCcw,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { Check, CircleDollarSign, Pencil, Sparkles, X } from "lucide-react";
 
 import WhiteCard from "@/app/components/WhiteCard";
 import Button from "@/app/components/ui/Button";
@@ -25,10 +19,7 @@ interface SettlementTabProps {
 
   onActualShuttleCockChange: (value: number) => void;
 
-  onPriceChange: (
-    priceMale: number,
-    priceFemale: number,
-  ) => void;
+  onPriceChange: (priceMale: number, priceFemale: number) => void;
 }
 
 export default function SettlementTab({
@@ -38,6 +29,12 @@ export default function SettlementTab({
   onActualShuttleCockChange,
   onPriceChange,
 }: SettlementTabProps) {
+  const t = useTranslations("sessionDetail");
+  const format = useFormatter();
+
+  const formatMoney = (value: number) =>
+    `${format.number(Math.round(value))} ${t("currencyVnd")}`;
+
   const [isEditingPrice, setIsEditingPrice] = useState(false);
 
   const [draftPriceMale, setDraftPriceMale] = useState(
@@ -54,17 +51,12 @@ export default function SettlementTab({
     if (isEditingPrice) return;
 
     setDraftPriceMale(String(session.priceMale));
+
     setDraftPriceFemale(String(session.priceFemale));
-  }, [
-    session.priceMale,
-    session.priceFemale,
-    isEditingPrice,
-  ]);
+  }, [session.priceMale, session.priceFemale, isEditingPrice]);
 
   const settlement = useMemo(() => {
-    const checkedInPlayers = players.filter(
-      (player) => player.checkedIn,
-    );
+    const checkedInPlayers = players.filter((player) => player.checkedIn);
 
     const maleCount = checkedInPlayers.filter(
       (player) => player.gender === "MALE",
@@ -79,48 +71,34 @@ export default function SettlementTab({
     ).length;
 
     /*
-     * OTHER hiện tại được tính theo giá Nam.
+     * OTHER hiện tại tính theo giá Nam.
      */
     const malePriceCount = maleCount + otherCount;
 
-    const totalPlayerCount =
-      malePriceCount + femaleCount;
+    const totalPlayerCount = malePriceCount + femaleCount;
 
     /*
      * Chi phí cầu thực tế.
      */
-    const shuttleCost =
-      actualShuttleCock * session.pricePerShuttleCock;
+    const shuttleCost = actualShuttleCock * session.pricePerShuttleCock;
 
     /*
      * Tổng chi phí session.
      */
-    const totalCost =
-      session.totalCourtPrice + shuttleCost;
+    const totalCost = session.totalCourtPrice + shuttleCost;
 
     /*
-     * Giữ chênh lệch giá Nam/Nữ đã thiết lập
-     * khi tạo session.
+     * Giữ chênh lệch giá Nam/Nữ
+     * lúc tạo Session.
      */
-    const priceDifference =
-      session.priceMale - session.priceFemale;
+    const priceDifference = session.priceMale - session.priceFemale;
 
     /*
-     * Hệ phương trình:
-     *
      * M - F = D
      *
      * malePriceCount * M
      * + femaleCount * F
      * = totalCost
-     *
-     * =>
-     *
-     * F =
-     * (totalCost - malePriceCount * D)
-     * / totalPlayerCount
-     *
-     * M = F + D
      */
     let suggestedMale = 0;
     let suggestedFemale = 0;
@@ -128,23 +106,17 @@ export default function SettlementTab({
 
     if (totalPlayerCount > 0) {
       suggestedFemale =
-        (totalCost -
-          malePriceCount * priceDifference) /
-        totalPlayerCount;
+        (totalCost - malePriceCount * priceDifference) / totalPlayerCount;
 
-      suggestedMale =
-        suggestedFemale + priceDifference;
+      suggestedMale = suggestedFemale + priceDifference;
 
-      canSuggestPrice =
-        suggestedMale >= 0 &&
-        suggestedFemale >= 0;
+      canSuggestPrice = suggestedMale >= 0 && suggestedFemale >= 0;
     }
 
     /*
-     * Nếu đang Edit thì preview doanh thu,
-     * lợi nhuận theo giá đang nhập.
-     *
-     * Nếu không Edit thì dùng giá đã lưu.
+     * Khi Edit:
+     * preview Revenue và Profit/Loss
+     * theo giá đang nhập.
      */
     const currentPriceMale = isEditingPrice
       ? Number(draftPriceMale) || 0
@@ -155,8 +127,7 @@ export default function SettlementTab({
       : session.priceFemale;
 
     const revenue =
-      malePriceCount * currentPriceMale +
-      femaleCount * currentPriceFemale;
+      malePriceCount * currentPriceMale + femaleCount * currentPriceFemale;
 
     const profit = revenue - totalCost;
 
@@ -196,20 +167,25 @@ export default function SettlementTab({
 
   const handleStartEdit = () => {
     setDraftPriceMale(String(session.priceMale));
+
     setDraftPriceFemale(String(session.priceFemale));
+
     setPriceError("");
     setIsEditingPrice(true);
   };
 
   const handleCancelEdit = () => {
     setDraftPriceMale(String(session.priceMale));
+
     setDraftPriceFemale(String(session.priceFemale));
+
     setPriceError("");
     setIsEditingPrice(false);
   };
 
   const handleSavePrice = () => {
     const priceMale = Number(draftPriceMale);
+
     const priceFemale = Number(draftPriceFemale);
 
     if (
@@ -218,9 +194,7 @@ export default function SettlementTab({
       priceMale < 0 ||
       priceFemale < 0
     ) {
-      setPriceError(
-        "Giá Nam và giá Nữ phải là số hợp lệ và không nhỏ hơn 0.",
-      );
+      setPriceError(t("invalidPrices"));
 
       return;
     }
@@ -232,33 +206,42 @@ export default function SettlementTab({
   };
 
   const handleUseSuggestedPrice = () => {
-    if (!settlement.canSuggestPrice) return;
+    if (!settlement.canSuggestPrice) {
+      return;
+    }
 
     setDraftPriceMale(
-      String(Math.round(settlement.suggestedMale)),
+      String(Math.ceil(settlement.suggestedMale / 1000) * 1000),
     );
 
     setDraftPriceFemale(
-      String(Math.round(settlement.suggestedFemale)),
+      String(Math.ceil(settlement.suggestedFemale / 1000) * 1000),
     );
 
     setPriceError("");
   };
 
+  const handleActualShuttleChange = (value: string) => {
+    const numberValue = Number(value);
+
+    onActualShuttleCockChange(
+      Number.isFinite(numberValue) ? Math.max(0, numberValue) : 0,
+    );
+  };
+
   return (
     <div className="flex flex-col gap-5">
-      {/* SETTLEMENT INPUT */}
+      {/* SETTLEMENT */}
       <WhiteCard className="flex-col items-stretch">
         {/* HEADER */}
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
           <div>
-            <h3 className="text-xl font-semibold text-text">
-              Settlement
+            <h3 className="text-xl font-semibold text-primary">
+              {t("settlement")}
             </h3>
 
-            <p className="mt-1 text-sm text-gray-500">
-              Finalize shuttlecock usage and calculate the
-              final session profit.
+            <p className="mt-1 text-sm text-foreground/60">
+              {t("settlementDescription")}
             </p>
           </div>
 
@@ -266,24 +249,24 @@ export default function SettlementTab({
             <Button
               type="button"
               onClick={handleStartEdit}
-              background="bg-white"
-              color="text-text"
+              background="bg-surface"
+              color="text-primary"
               className="border border-placeholder sm:w-fit sm:px-5"
             >
               <Pencil size={15} />
-              Edit Price
+              {t("editPrice")}
             </Button>
           ) : (
             <div className="flex gap-2">
               <Button
                 type="button"
                 onClick={handleCancelEdit}
-                background="bg-white"
-                color="text-gray-600"
-                className="border border-gray-300 sm:w-fit sm:px-4"
+                background="bg-surface"
+                color="text-foreground/70"
+                className="border border-foreground/20 sm:w-fit sm:px-4"
               >
                 <X size={15} />
-                Cancel
+                {t("cancel")}
               </Button>
 
               <Button
@@ -292,7 +275,7 @@ export default function SettlementTab({
                 className="sm:w-fit sm:px-4"
               >
                 <Check size={15} />
-                Save
+                {t("save")}
               </Button>
             </div>
           )}
@@ -302,74 +285,66 @@ export default function SettlementTab({
         <div className="mt-4">
           <Input
             id="actual-shuttle"
-            label="Actual ShuttleCock Used"
+            label={t("actualShuttleUsed")}
             type="number"
             min={0}
             value={actualShuttleCock}
-            onChange={(event) =>
-              onActualShuttleCockChange(
-                Number(event.target.value),
-              )
-            }
+            onChange={(event) => handleActualShuttleChange(event.target.value)}
           />
 
-          <p className="mt-2 text-xs text-gray-500">
-            Expected: {session.expectedShuttleCock} shuttlecocks
-            • Unit price:{" "}
-            {formatMoney(session.pricePerShuttleCock)}
+          <p className="mt-2 text-xs text-foreground/60">
+            {t("expectedUnitPrice", {
+              count: session.expectedShuttleCock,
+              price: formatMoney(session.pricePerShuttleCock),
+            })}
           </p>
         </div>
 
-        {/* ACTUAL PLAYER INFO */}
+        {/* PLAYER INFORMATION */}
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <InformationCard
-            label="Checked In"
-            value={`${settlement.checkedInCount} players`}
+            label={t("checkedIn")}
+            value={t("playersCountOnly", { count: settlement.checkedInCount })}
           />
 
           <InformationCard
-            label="Male"
-            value={`${settlement.maleCount} players`}
+            label={t("male")}
+            value={t("playersCountOnly", { count: settlement.maleCount })}
           />
 
           <InformationCard
-            label="Female"
-            value={`${settlement.femaleCount} players`}
+            label={t("female")}
+            value={t("playersCountOnly", { count: settlement.femaleCount })}
           />
 
           <InformationCard
-            label="Other"
-            value={`${settlement.otherCount} players`}
+            label={t("other")}
+            value={t("playersCountOnly", { count: settlement.otherCount })}
           />
         </div>
 
         {/* PRICE */}
-        <div className="mt-6 border-t border-gray-100 pt-5">
+        <div className="mt-6 border-t border-foreground/20 pt-5">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
             <div>
-              <h4 className="font-semibold text-text">
-                Player Price
-              </h4>
+              <h4 className="font-semibold text-primary">{t("playerPrice")}</h4>
 
-              <p className="mt-1 text-xs text-gray-500">
-                Original difference:{" "}
-                {formatMoney(
-                  settlement.priceDifference,
-                )}
+              <p className="mt-1 text-xs text-foreground/60">
+                {t("originalDifference")}{" "}
+                {formatMoney(settlement.priceDifference)}
               </p>
             </div>
 
-            {isEditingPrice &&
-              settlement.canSuggestPrice && (
-                <button
-                  type="button"
-                  onClick={handleUseSuggestedPrice}
-                  className="flex w-fit cursor-pointer items-center gap-2 rounded-lg bg-bg px-3 py-2 text-sm font-semibold text-text transition hover:bg-placeholder/40"
-                >
-                  <Sparkles size={15} />
-                  Use Suggested Price
-                </button>
-              )}
+            {isEditingPrice && settlement.canSuggestPrice && (
+              <button
+                type="button"
+                onClick={handleUseSuggestedPrice}
+                className="flex w-fit cursor-pointer items-center gap-2 rounded-lg bg-tag px-3 py-2 text-sm font-semibold text-primary transition hover:opacity-80"
+              >
+                <Sparkles size={15} />
+                {t("useSuggestedPrice")}
+              </button>
+            )}
           </div>
 
           <div className="grid gap-0 md:grid-cols-2 md:gap-4">
@@ -377,26 +352,23 @@ export default function SettlementTab({
             <div>
               <Input
                 id="settlement-male"
-                label="Price Male"
+                label={t("priceMale")}
                 type="number"
                 min={0}
                 value={draftPriceMale}
                 readOnly={!isEditingPrice}
-                onChange={(event) =>
-                  setDraftPriceMale(event.target.value)
-                }
+                onChange={(event) => setDraftPriceMale(event.target.value)}
                 className={
                   !isEditingPrice
-                    ? "cursor-not-allowed bg-gray-100"
+                    ? "cursor-not-allowed bg-tag text-foreground/60"
                     : ""
                 }
               />
 
               <PriceSuggestion
                 price={settlement.suggestedMale}
-                canSuggest={
-                  settlement.canSuggestPrice
-                }
+                canSuggest={settlement.canSuggestPrice}
+                formatMoney={formatMoney}
               />
             </div>
 
@@ -404,103 +376,93 @@ export default function SettlementTab({
             <div>
               <Input
                 id="settlement-female"
-                label="Price Female"
+                label={t("priceFemale")}
                 type="number"
                 min={0}
                 value={draftPriceFemale}
                 readOnly={!isEditingPrice}
-                onChange={(event) =>
-                  setDraftPriceFemale(event.target.value)
-                }
+                onChange={(event) => setDraftPriceFemale(event.target.value)}
                 className={
                   !isEditingPrice
-                    ? "cursor-not-allowed bg-gray-100"
+                    ? "cursor-not-allowed bg-tag text-foreground/60"
                     : ""
                 }
               />
 
               <PriceSuggestion
                 price={settlement.suggestedFemale}
-                canSuggest={
-                  settlement.canSuggestPrice
-                }
+                canSuggest={settlement.canSuggestPrice}
+                formatMoney={formatMoney}
               />
             </div>
           </div>
 
+          {/* ERROR */}
           {priceError && (
-            <p className="mt-3 text-sm font-medium text-red-600">
-              {priceError}
-            </p>
+            <div className="mt-4 rounded-xl border border-colorWrong/30 bg-colorWrong/10 p-4">
+              <p className="text-sm font-medium text-colorWrong">
+                {priceError}
+              </p>
+            </div>
           )}
 
+          {/* PREVIEW MODE */}
           {isEditingPrice && (
-            <div className="mt-4 rounded-xl border border-yellow-200 bg-yellow-50 p-4">
-              <p className="text-sm font-semibold text-yellow-700">
-                Preview mode
-              </p>
+            <div className="mt-4 rounded-xl border border-placeholder bg-tag p-4">
+              <div className="flex items-center gap-2 text-primary">
+                <Pencil size={16} />
 
-              <p className="mt-1 text-xs leading-5 text-yellow-600">
-                Revenue và Profit/Loss bên dưới đang được tính
-                theo giá Nam/Nữ bạn đang chỉnh. Giá chỉ được lưu
-                khi nhấn Save.
+                <p className="text-sm font-semibold">{t("previewMode")}</p>
+              </div>
+
+              <p className="mt-1 text-xs leading-5 text-foreground/60">
+                {t("previewDescription")}
               </p>
             </div>
           )}
         </div>
 
-        {/* SUGGESTED PRICE EXPLANATION */}
+        {/* SUGGESTED PRICE */}
         {settlement.canSuggestPrice ? (
-          <div className="mt-5 rounded-xl border border-placeholder bg-main0 p-4">
-            <div className="flex items-center gap-2 text-text">
+          <div className="mt-5 rounded-xl border border-placeholder bg-tag p-4">
+            <div className="flex items-center gap-2 text-primary">
               <CircleDollarSign size={18} />
 
-              <p className="font-semibold">
-                Suggested Break-even Price
-              </p>
+              <p className="font-semibold">{t("suggestedBreakEven")}</p>
             </div>
 
-            <p className="mt-2 text-sm text-gray-600">
-              Giá gợi ý được tính dựa trên số người check-in
-              thực tế, số cầu sử dụng thực tế và giữ nguyên mức
-              chênh lệch Nam/Nữ đã thiết lập.
+            <p className="mt-2 text-sm leading-6 text-foreground/70">
+              {t("suggestedPriceDescription")}
             </p>
 
-            <div className="mt-3 grid gap-2 text-sm text-gray-600">
-              <p>
-                Actual Cost = Court Cost + Actual ShuttleCock
-                Cost
-              </p>
+            <div className="mt-4 grid gap-2 rounded-lg bg-surface/60 p-3 text-sm text-foreground/70">
+              <p>{t("actualCostFormula")}</p>
 
               <p>
-                Male Price - Female Price ={" "}
-                {formatMoney(
-                  settlement.priceDifference,
-                )}
+                {t("priceDifferenceFormula")}{" "}
+                <span className="font-semibold text-primary">
+                  {formatMoney(settlement.priceDifference)}
+                </span>
               </p>
 
-              <p>
-                Revenue at suggested prices = Actual Cost
-              </p>
+              <p>{t("suggestedRevenueFormula")}</p>
             </div>
 
             {settlement.otherCount > 0 && (
-              <p className="mt-3 text-xs text-gray-500">
-                {settlement.otherCount} player(s) có Gender =
-                OTHER hiện được tính theo mức giá Nam.
+              <p className="mt-3 text-xs text-foreground/60">
+                {t("otherPriceNote", { count: settlement.otherCount })}
               </p>
             )}
           </div>
         ) : (
           settlement.totalPlayerCount > 0 && (
-            <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4">
-              <p className="text-sm font-semibold text-red-600">
-                Không thể tính mức giá gợi ý hợp lệ.
+            <div className="mt-5 rounded-xl border border-colorWrong/30 bg-colorWrong/10 p-4">
+              <p className="text-sm font-semibold text-colorWrong">
+                {t("invalidSuggestedPrice")}
               </p>
 
-              <p className="mt-1 text-xs text-red-500">
-                Mức chênh lệch Nam/Nữ hiện tại quá lớn so với
-                chi phí và số lượng người chơi thực tế.
+              <p className="mt-1 text-xs leading-5 text-colorWrong/80">
+                {t("invalidSuggestedPriceDescription")}
               </p>
             </div>
           )
@@ -510,77 +472,75 @@ export default function SettlementTab({
       {/* COST SUMMARY */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <SummaryCard
-          label="Court Cost"
+          label={t("courtCost")}
           value={session.totalCourtPrice}
+          formatMoney={formatMoney}
         />
 
         <SummaryCard
-          label="Actual ShuttleCock Cost"
+          label={t("actualShuttleCost")}
           value={settlement.shuttleCost}
+          formatMoney={formatMoney}
         />
 
         <SummaryCard
-          label="Total Cost"
+          label={t("totalCost")}
           value={settlement.totalCost}
+          formatMoney={formatMoney}
         />
 
         <SummaryCard
-          label={
-            isEditingPrice
-              ? "Preview Revenue"
-              : "Revenue"
-          }
+          label={isEditingPrice ? t("previewRevenue") : t("revenue")}
           value={settlement.revenue}
+          formatMoney={formatMoney}
         />
 
         <SummaryCard
-          label={
-            isEditingPrice
-              ? "Preview Profit / Loss"
-              : "Profit / Loss"
-          }
+          label={isEditingPrice ? t("previewProfitLoss") : t("profitLoss")}
           value={settlement.profit}
+          formatMoney={formatMoney}
           highlight
         />
       </div>
 
-      {/* BREAKDOWN */}
+      {/* REVENUE BREAKDOWN */}
       <WhiteCard className="flex-col items-stretch">
-        <h3 className="font-semibold text-text">
-          Revenue Breakdown
-        </h3>
+        <div>
+          <h3 className="font-semibold text-primary">
+            {t("revenueBreakdown")}
+          </h3>
+
+          <p className="mt-1 text-sm text-foreground/60">
+            {t("revenueFromCheckedIn")}
+          </p>
+        </div>
 
         <div className="mt-4 flex flex-col gap-3">
           <BreakdownRow
-            label={`Male (${settlement.maleCount})`}
-            value={
-              settlement.maleCount *
-              settlement.currentPriceMale
-            }
+            label={t("breakdownMale", { count: settlement.maleCount })}
+            value={settlement.maleCount * settlement.currentPriceMale}
+            formatMoney={formatMoney}
           />
 
           {settlement.otherCount > 0 && (
             <BreakdownRow
-              label={`Other (${settlement.otherCount})`}
-              value={
-                settlement.otherCount *
-                settlement.currentPriceMale
-              }
+              label={t("breakdownOther", { count: settlement.otherCount })}
+              value={settlement.otherCount * settlement.currentPriceMale}
+              formatMoney={formatMoney}
             />
           )}
 
           <BreakdownRow
-            label={`Female (${settlement.femaleCount})`}
-            value={
-              settlement.femaleCount *
-              settlement.currentPriceFemale
-            }
+            label={t("breakdownFemale", { count: settlement.femaleCount })}
+            value={settlement.femaleCount * settlement.currentPriceFemale}
+            formatMoney={formatMoney}
           />
 
-          <div className="border-t border-gray-200 pt-3">
+          <div className="border-t border-foreground/20 pt-3">
             <BreakdownRow
-              label="Total Revenue"
+              label={t("totalRevenue")}
               value={settlement.revenue}
+              formatMoney={formatMoney}
               bold
             />
           </div>
@@ -595,19 +555,12 @@ interface InformationCardProps {
   value: string;
 }
 
-function InformationCard({
-  label,
-  value,
-}: InformationCardProps) {
+function InformationCard({ label, value }: InformationCardProps) {
   return (
-    <div className="rounded-xl bg-bg p-4">
-      <p className="text-xs text-gray-500">
-        {label}
-      </p>
+    <div className="rounded-xl bg-tag p-4">
+      <p className="text-xs text-foreground/60">{label}</p>
 
-      <p className="mt-1 font-semibold text-gray-800">
-        {value}
-      </p>
+      <p className="mt-1 font-semibold text-foreground">{value}</p>
     </div>
   );
 }
@@ -615,24 +568,28 @@ function InformationCard({
 interface PriceSuggestionProps {
   price: number;
   canSuggest: boolean;
+  formatMoney: (value: number) => string;
 }
 
 function PriceSuggestion({
   price,
   canSuggest,
+  formatMoney,
 }: PriceSuggestionProps) {
+  const t = useTranslations("sessionDetail");
+
   if (!canSuggest) {
     return (
-      <p className="mt-2 text-xs text-gray-400">
-        Suggested price is unavailable.
+      <p className="mt-2 text-xs text-foreground/40">
+        {t("suggestedUnavailable")}
       </p>
     );
   }
 
   return (
-    <p className="mt-2 text-xs text-gray-500">
-      Suggested break-even:{" "}
-      <span className="font-semibold text-text">
+    <p className="mt-2 text-xs text-foreground/60">
+      {t("suggestedBreakEvenShort")}{" "}
+      <span className="font-semibold text-primary">
         {formatMoney(Math.round(price))}
       </span>
     </p>
@@ -642,50 +599,55 @@ function PriceSuggestion({
 interface SummaryCardProps {
   label: string;
   value: number;
+  formatMoney: (value: number) => string;
   highlight?: boolean;
 }
 
 function SummaryCard({
   label,
   value,
+  formatMoney,
   highlight = false,
 }: SummaryCardProps) {
+  const t = useTranslations("sessionDetail");
   const valueStyle = highlight
     ? value > 0
-      ? "text-text"
+      ? "text-primary"
       : value < 0
-        ? "text-red-600"
-        : "text-gray-600"
-    : "text-gray-800";
+        ? "text-colorWrong"
+        : "text-foreground/60"
+    : "text-foreground";
 
   return (
-    <WhiteCard className="flex-col items-start">
-      <p className="text-sm text-gray-500">
-        {label}
-      </p>
+    <WhiteCard
+      className={`flex-col items-start border ${
+        highlight
+          ? value < 0
+            ? "border-colorWrong/30"
+            : value > 0
+              ? "border-primary/30"
+              : "border-foreground/10"
+          : "border-foreground/10"
+      }`}
+    >
+      <p className="text-sm text-foreground/60">{label}</p>
 
-      <p
-        className={`mt-2 text-xl font-bold ${valueStyle}`}
-      >
+      <p className={`mt-2 text-xl font-bold ${valueStyle}`}>
         {formatMoney(value)}
       </p>
 
       {highlight && (
-        <p
-          className={`mt-1 text-xs ${
+        <div
+          className={`mt-2 rounded-full px-2.5 py-1 text-xs font-semibold ${
             value > 0
-              ? "text-text"
+              ? "bg-tag text-primary"
               : value < 0
-                ? "text-red-500"
-                : "text-gray-500"
+                ? "bg-colorWrong/10 text-colorWrong"
+                : "bg-foreground/10 text-foreground/60"
           }`}
         >
-          {value > 0
-            ? "Profit"
-            : value < 0
-              ? "Loss"
-              : "Break-even"}
-        </p>
+          {value > 0 ? t("profit") : value < 0 ? t("loss") : t("breakEven")}
+        </div>
       )}
     </WhiteCard>
   );
@@ -694,21 +656,21 @@ function SummaryCard({
 interface BreakdownRowProps {
   label: string;
   value: number;
+  formatMoney: (value: number) => string;
   bold?: boolean;
 }
 
 function BreakdownRow({
   label,
   value,
+  formatMoney,
   bold = false,
 }: BreakdownRowProps) {
   return (
     <div className="flex items-center justify-between gap-4">
       <span
         className={
-          bold
-            ? "font-semibold text-gray-800"
-            : "text-sm text-gray-600"
+          bold ? "font-semibold text-foreground" : "text-sm text-foreground/70"
         }
       >
         {label}
@@ -717,8 +679,8 @@ function BreakdownRow({
       <span
         className={
           bold
-            ? "font-bold text-text"
-            : "text-sm font-semibold"
+            ? "font-bold text-primary"
+            : "text-sm font-semibold text-foreground"
         }
       >
         {formatMoney(value)}
@@ -727,6 +689,3 @@ function BreakdownRow({
   );
 }
 
-function formatMoney(value: number) {
-  return `${Math.round(value).toLocaleString("vi-VN")} VNĐ`;
-}

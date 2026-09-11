@@ -1,14 +1,9 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
-import {
-  MapPin,
-  Pencil,
-  Plus,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Pencil, Plus, Trash2, X } from "lucide-react";
 
 import Button from "@/app/components/ui/Button";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
@@ -64,20 +59,14 @@ export default function VenueDetailModal({
   onUpdateCourt,
   onDeleteCourt,
 }: VenueDetailModalProps) {
-  const [courtForm, setCourtForm] =
-    useState<CourtFormData>(emptyCourtForm);
+  const t = useTranslations("venueDetail");
+  const [courtForm, setCourtForm] = useState<CourtFormData>(emptyCourtForm);
 
-  const [editingCourtId, setEditingCourtId] = useState<number | null>(
-    null,
-  );
+  const [editingCourtId, setEditingCourtId] = useState<number | null>(null);
 
-  const [courtToDelete, setCourtToDelete] = useState<Court | null>(
-    null,
-  );
+  const [courtToDelete, setCourtToDelete] = useState<Court | null>(null);
 
-  const [successMessage, setSuccessMessage] = useState<string | null>(
-    null,
-  );
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -89,14 +78,9 @@ export default function VenueDetailModal({
 
   if (!venue) return null;
 
-  const venueCourts = courts.filter(
-    (court) => court.venueId === venue.id,
-  );
+  const venueCourts = courts.filter((court) => court.venueId === venue.id);
 
-  const handleCourtChange = (
-    field: keyof CourtFormData,
-    value: string,
-  ) => {
+  const handleCourtChange = (field: keyof CourtFormData, value: string) => {
     setCourtForm((prev) => ({
       ...prev,
       [field]: value,
@@ -163,28 +147,22 @@ export default function VenueDetailModal({
 
   return (
     <>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        className="max-w-3xl"
-      >
+      <Modal open={open} onClose={handleClose} className="max-w-3xl">
         {/* HEADER */}
-        <div className="flex items-start justify-between border-b border-placeholder/40 px-5 py-4 md:px-6">
+        <div className="flex items-start bg-background justify-between border-b border-foreground/40 px-5 py-4 md:px-6 sticky top-0 z-10">
           <div>
-            <h2 className="text-xl font-bold text-text md:text-2xl">
-              Venue Details
-            </h2>
+            <h2 className="text-xl font-bold md:text-2xl">{t("title")}</h2>
 
-            <p className="mt-1 text-sm text-gray-500">
-              View venue information and manage its courts.
+            <p className="mt-1 text-foreground/60 text-sm">
+              {t("description")}
             </p>
           </div>
 
           <button
             type="button"
-            aria-label="Close"
+            aria-label={t("close")}
             onClick={handleClose}
-            className="flex size-9 cursor-pointer items-center justify-center rounded-full text-gray-500 transition hover:bg-bg hover:text-text"
+            className="flex size-9 cursor-pointer items-center justify-center rounded-full transition hover:bg-primary hover:text-surface"
           >
             <X size={19} />
           </button>
@@ -193,56 +171,37 @@ export default function VenueDetailModal({
         <div className="flex flex-col gap-6 px-5 py-5 md:px-6">
           {/* VENUE INFORMATION */}
           <div>
-            <h3 className="text-lg font-semibold text-text">
-              Venue Information
-            </h3>
-
-            <div className="mt-4 grid gap-4 rounded-xl bg-bg p-4 sm:grid-cols-2">
+            <div className="grid gap-4 rounded-xl sm:grid-cols-2">
               {/* NAME */}
               <div>
-                <p className="text-xs font-medium text-gray-500">
-                  Venue Name
-                </p>
+                <p className="text-xs font-medium">{t("venueName")}</p>
 
                 <p className="mt-1 font-semibold">{venue.name}</p>
               </div>
 
               {/* PRICE */}
               <div>
-                <p className="text-xs font-medium text-gray-500">
-                  Reference Price
-                </p>
+                <p className="text-xs font-medium">{t("referencePrice")}</p>
 
-                <p className="mt-1 font-semibold text-text">
+                <p className="mt-1 font-semibold">
                   {Number(venue.price).toLocaleString("vi-VN")} VNĐ/hour
                 </p>
               </div>
 
               {/* ADDRESS */}
               <div>
-                <p className="text-xs font-medium text-gray-500">
-                  Address
-                </p>
+                <p className="text-xs font-medium">{t("address")}</p>
 
                 <div className="mt-1 flex items-start gap-2">
-                  <MapPin
-                    size={15}
-                    className="mt-0.5 shrink-0 text-text"
-                  />
-
                   <p className="text-sm">{venue.address}</p>
                 </div>
               </div>
 
               {/* NOTE */}
               <div>
-                <p className="text-xs font-medium text-gray-500">
-                  Note
-                </p>
+                <p className="text-xs font-medium">{t("note")}</p>
 
-                <p className="mt-1 text-sm">
-                  {venue.note || "No additional notes"}
-                </p>
+                <p className="mt-1 text-sm">{venue.note || t("noNotes")}</p>
               </div>
             </div>
           </div>
@@ -251,16 +210,12 @@ export default function VenueDetailModal({
           <div>
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h3 className="text-lg font-semibold text-text">
-                  Courts
-                </h3>
+                <h3 className="text-lg font-semibold">{t("courts")}</h3>
 
-                <p className="mt-1 text-sm text-gray-500">
-                  Manage courts at this venue.
-                </p>
+                <p className="mt-1 text-sm">{t("courtsDescription")}</p>
               </div>
 
-              <span className="shrink-0 rounded-lg bg-bg px-3 py-2 text-sm font-semibold text-text">
+              <span className="shrink-0 rounded-lg px-3 py-2 text-sm font-semibold">
                 {venueCourts.length} Courts
               </span>
             </div>
@@ -268,30 +223,28 @@ export default function VenueDetailModal({
             {/* ADD / EDIT COURT */}
             <form
               onSubmit={handleSubmitCourt}
-              className="mt-4 rounded-xl border border-placeholder bg-main0 p-4"
+              className="mt-4 rounded-xl border p-4"
             >
               <div className="flex items-center justify-between">
-                <p className="font-semibold text-text">
-                  {editingCourtId !== null
-                    ? "Edit Court"
-                    : "Add New Court"}
+                <p className="font-semibold">
+                  {editingCourtId !== null ? t("editCourt") : t("addCourt")}
                 </p>
 
                 {editingCourtId !== null && (
-                  <button
+                  <Button
                     type="button"
                     onClick={resetCourtForm}
-                    className="cursor-pointer text-sm font-medium text-gray-500 transition hover:text-text"
+                    className="cursor-pointer text-sm font-medium transition hover:text-foreground"
                   >
-                    Cancel Edit
-                  </button>
+                    {t("cancelEdit")}
+                  </Button>
                 )}
               </div>
 
               <div className="grid gap-3 sm:grid-cols-[0.7fr_1.5fr]">
                 <Input
                   id="court-code"
-                  label="Court Code"
+                  label={t("courtCode")}
                   placeholder="VD: A1"
                   value={courtForm.code}
                   onChange={(event) =>
@@ -302,7 +255,7 @@ export default function VenueDetailModal({
 
                 <Input
                   id="court-name"
-                  label="Court Name"
+                  label={t("courtName")}
                   placeholder="VD: Court Alpha"
                   value={courtForm.name}
                   onChange={(event) =>
@@ -315,9 +268,9 @@ export default function VenueDetailModal({
               <div className="mt-5 flex flex-col gap-1">
                 <label
                   htmlFor="court-status"
-                  className="text-[14px] font-semibold text-text"
+                  className="text-[14px] font-semibold"
                 >
-                  Status
+                  {t("status")}
                 </label>
 
                 <select
@@ -326,26 +279,20 @@ export default function VenueDetailModal({
                   onChange={(event) =>
                     handleCourtChange("status", event.target.value)
                   }
-                  className="w-full cursor-pointer rounded-lg border border-placeholder bg-white px-3 py-3.5 text-sm text-text outline-none focus:border-button focus:ring-2 focus:ring-button/20"
+                  className="w-full cursor-pointer rounded-lg border bg-surface px-3 py-3.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 >
-                  <option value="AVAILABLE">Available</option>
-                  <option value="MAINTENANCE">Maintenance</option>
-                  <option value="INACTIVE">Inactive</option>
+                  <option value="AVAILABLE">{t("available")}</option>
+                  <option value="MAINTENANCE">{t("maintenance")}</option>
+                  <option value="INACTIVE">{t("inactive")}</option>
                 </select>
               </div>
 
               <Button
                 type="submit"
                 className="mt-5"
-                icon={
-                  editingCourtId === null ? (
-                    <Plus size={16} />
-                  ) : undefined
-                }
+                icon={editingCourtId === null ? <Plus size={16} /> : undefined}
               >
-                {editingCourtId !== null
-                  ? "Save Changes"
-                  : "Add Court"}
+                {editingCourtId !== null ? t("saveChanges") : t("addCourt")}
               </Button>
             </form>
 
@@ -355,40 +302,38 @@ export default function VenueDetailModal({
                 venueCourts.map((court) => (
                   <div
                     key={court.id}
-                    className={`flex items-center justify-between gap-3 rounded-xl border bg-white p-3 transition ${
+                    className={`flex items-center justify-between gap-3 rounded-xl border bg-surface p-3 transition ${
                       editingCourtId === court.id
-                        ? "border-main3"
-                        : "border-gray-200 hover:border-placeholder"
+                        ? "border-foreground"
+                        : "border-foreground/30 hover:border-tag"
                     }`}
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-placeholder text-sm font-semibold text-text">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
                         {court.code}
                       </div>
 
                       <div className="min-w-0">
-                        <p className="truncate font-semibold">
-                          {court.name}
-                        </p>
+                        <p className="truncate font-semibold">{court.name}</p>
 
                         <div className="mt-1 flex items-center gap-1.5">
                           <span
                             className={`size-1.5 rounded-full ${
                               court.status === "AVAILABLE"
-                                ? "bg-main3"
+                                ? "bg-primary"
                                 : court.status === "MAINTENANCE"
-                                  ? "bg-yellow-500"
-                                  : "bg-gray-400"
+                                  ? "bg-colorWrong"
+                                  : "bg-forground/50"
                             }`}
                           />
 
                           <span
                             className={`text-[10px] font-semibold ${
                               court.status === "AVAILABLE"
-                                ? "text-text"
+                                ? "text-primary"
                                 : court.status === "MAINTENANCE"
-                                  ? "text-yellow-600"
-                                  : "text-gray-500"
+                                  ? "text-colorWrong"
+                                  : "text-forground/50"
                             }`}
                           >
                             {court.status}
@@ -403,7 +348,7 @@ export default function VenueDetailModal({
                         type="button"
                         aria-label={`Edit ${court.name}`}
                         onClick={() => handleEditCourt(court)}
-                        className="cursor-pointer text-gray-500 transition hover:text-text"
+                        className="cursor-pointer text-primary transition hover:opacity-60"
                       >
                         <Pencil size={16} />
                       </button>
@@ -412,7 +357,7 @@ export default function VenueDetailModal({
                         type="button"
                         aria-label={`Delete ${court.name}`}
                         onClick={() => setCourtToDelete(court)}
-                        className="cursor-pointer text-gray-500 transition hover:text-red-600"
+                        className="cursor-pointer text-colorWrong transition hover:opacity-60"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -421,7 +366,7 @@ export default function VenueDetailModal({
                 ))
               ) : (
                 <div className="rounded-xl border border-dashed border-placeholder p-6 text-center">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm">
                     This venue does not have any courts yet.
                   </p>
                 </div>

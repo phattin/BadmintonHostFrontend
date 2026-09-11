@@ -15,7 +15,7 @@ export default function Textarea({
     <div className="mt-5 flex w-full flex-col gap-1">
       <label
         htmlFor={id}
-        className="text-[14px] font-semibold text-text"
+        className="text-sm font-semibold text-foreground"
       >
         {label}
       </label>
@@ -29,17 +29,18 @@ export default function Textarea({
           resize-none
           rounded-lg
           border
-          border-placeholder
-          bg-white
+          border-foreground/30
+          bg-surface
           px-3
           py-3.5
           text-sm
-          text-text
+          text-foreground
           outline-none
-          placeholder:text-placeholder
-          focus:border-button
+          transition
+          placeholder:text-foreground/30
+          focus:border-primary
           focus:ring-2
-          focus:ring-button/20
+          focus:ring-primary/30
           ${className}
         `}
       />

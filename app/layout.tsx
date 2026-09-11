@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
+import { getLocale } from "next-intl/server";
+
 import "./globals.css";
 
 const roboto = Roboto({
@@ -13,16 +15,16 @@ export const metadata: Metadata = {
   description: "Badminton court management",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="vi">
-      <body className={roboto.variable}>
-        {children}
-      </body>
+    <html lang={locale}>
+      <body className={roboto.variable}>{children}</body>
     </html>
   );
 }

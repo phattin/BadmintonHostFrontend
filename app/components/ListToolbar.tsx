@@ -1,11 +1,9 @@
 "use client";
 
-import {
-  FormEvent,
-  ReactNode,
-} from "react";
+import { FormEvent, ReactNode } from "react";
 
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import Button from "@/app/components/ui/Button";
 
@@ -24,6 +22,8 @@ export default function ListToolbar({
   onSearchChange,
   onSearch,
 }: ListToolbarProps) {
+  const t = useTranslations("common");
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     onSearch();
@@ -32,12 +32,12 @@ export default function ListToolbar({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col w-full gap-3 border-b border-gray-100 p-4 md:flex-row md:items-center md:justify-between"
+      className="flex flex-col w-full gap-3 p-4 md:flex-row md:items-center md:justify-between"
     >
       <div className="relative w-full">
         <Search
           size={17}
-          className="absolute top-1/2 left-3 -translate-y-1/2 text-placeholder"
+          className="absolute top-1/2 left-3 -translate-y-1/2"
         />
 
         <input
@@ -45,7 +45,7 @@ export default function ListToolbar({
           value={searchValue}
           placeholder={searchPlaceholder}
           onChange={(event) => onSearchChange(event.target.value)}
-          className="w-full rounded-lg border border-placeholder bg-white py-3 pr-3 pl-10 text-sm text-text outline-none placeholder:text-placeholder focus:border-button focus:ring-2 focus:ring-button/20"
+          className="w-full rounded-lg border border-primary bg-surface py-3 pr-3 pl-10 text-sm outline-none placeholder:text-tag focus:border-button focus:ring-2 focus:ring-button/20"
         />
       </div>
 
@@ -54,7 +54,7 @@ export default function ListToolbar({
 
         <Button type="submit" className="md:w-fit md:px-6">
           <Search size={16} />
-          Search
+          {t("search")}
         </Button>
       </div>
     </form>

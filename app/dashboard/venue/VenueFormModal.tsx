@@ -1,8 +1,9 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
-import { MapPin, X } from "lucide-react";
+import { X } from "lucide-react";
 
 import Button from "@/app/components/ui/Button";
 import Input from "@/app/components/ui/Input";
@@ -38,6 +39,8 @@ export default function VenueFormModal({
   onClose,
   onSubmit,
 }: VenueFormModalProps) {
+  const t = useTranslations("venueForm");
+  const common = useTranslations("common");
   const [formData, setFormData] = useState<VenueFormData>(emptyVenue);
 
   useEffect(() => {
@@ -58,21 +61,21 @@ export default function VenueFormModal({
     onSubmit(formData);
   };
 
-  const title = mode === "add" ? "Add venue" : "Edit venue";
-  const buttonText = mode === "add" ? "Add venue" : "Save changes";
+  const title = mode === "add" ? t("addTitle") : t("editTitle");
+  const buttonText = mode === "add" ? t("addTitle") : common("saveChanges");
 
   return (
     <Modal open={open} onClose={onClose}>
       <form onSubmit={handleSubmit}>
         {/* HEADER */}
-        <div className="flex items-center justify-between border-b border-placeholder/40 px-3 py-4 md:px-6">
-          <h3 className="text-xl font-bold text-text">{title}</h3>
+        <div className="flex items-center bg-background justify-between border-b border-foreground/40 px-3 py-4 md:px-6 sticky top-0 z-10">
+          <h3 className="text-xl font-bold">{title}</h3>
 
           <button
             type="button"
-            aria-label="Close"
+            aria-label={common("close")}
             onClick={onClose}
-            className="flex size-9 cursor-pointer items-center justify-center rounded-full text-gray-600 transition hover:bg-bg hover:text-text"
+            className="flex size-9 cursor-pointer items-center justify-center rounded-full text-gray-600 transition hover:bg-primary hover:text-surface"
           >
             <X size={19} />
           </button>
@@ -82,8 +85,8 @@ export default function VenueFormModal({
         <div className="px-5 pb-6 md:px-6">
           <Input
             id="venue-name"
-            label="Venue name"
-            placeholder="e.g. Downtown Badminton Center"
+            label={t("name")}
+            placeholder={t("namePlaceholder")}
             value={formData.name}
             onChange={(event) => handleChange("name", event.target.value)}
             required
@@ -91,9 +94,8 @@ export default function VenueFormModal({
 
           <Input
             id="venue-address"
-            label="Address"
-            placeholder="Enter the full address"
-            icon={<MapPin size={16} />}
+            label={t("address")}
+            placeholder={t("addressPlaceholder")}
             value={formData.address}
             onChange={(event) => handleChange("address", event.target.value)}
             required
@@ -101,18 +103,18 @@ export default function VenueFormModal({
 
           <Input
             id="venue-price"
-            label="Reference price (VND/hour)"
+            label={t("referencePrice")}
             type="number"
             min={0}
-            placeholder="e.g. 150,000"
+            placeholder={t("pricePlaceholder")}
             value={formData.price}
             onChange={(event) => handleChange("price", event.target.value)}
           />
 
           <Textarea
             id="venue-note"
-            label="Note"
-            placeholder="Additional information (if any)"
+            label={t("note")}
+            placeholder={t("notePlaceholder")}
             value={formData.note}
             onChange={(event) => handleChange("note", event.target.value)}
           />
@@ -121,11 +123,11 @@ export default function VenueFormModal({
             <Button
               type="button"
               onClick={onClose}
-              background="bg-white"
-              color="text-text"
-              className="border border-placeholder"
+              background="bg-surface"
+              color="color-foreground"
+              className="border border-tag"
             >
-              Cancel
+              {common("cancel")}
             </Button>
 
             <Button type="submit">{buttonText}</Button>

@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
+import Button from "@/app/components/ui/Button";
 import ListToolbar from "@/app/components/ListToolbar";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import StatusModal from "@/app/components/ui/StatusModal";
-import WhiteCard from "@/app/components/WhiteCard";
+import ManagementListCard from "@/app/components/ManagementListCard";
+import ManagementPage from "@/app/components/ManagementPage";
+import EmptyListState from "@/app/components/EmptyListState";
 import VenueDetailModal, {
   CourtFormData,
 } from "@/app/dashboard/venue/VenueDetailModal";
@@ -66,12 +70,12 @@ const initialCourts = [
 ];
 
 export default function Content() {
+  const t = useTranslations("venues");
+  const tDialog = useTranslations("dialog");
   const [venues, setVenues] = useState<Venue[]>(initialVenues);
 
   const [isVenueModalOpen, setIsVenueModalOpen] = useState(false);
-  const [editingVenue, setEditingVenue] = useState<VenueFormData | null>(
-    null,
-  );
+  const [editingVenue, setEditingVenue] = useState<VenueFormData | null>(null);
   const [editingVenueId, setEditingVenueId] = useState<number | null>(null);
 
   const [viewingVenue, setViewingVenue] = useState<Venue | null>(null);
@@ -83,20 +87,20 @@ export default function Content() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredVenues = useMemo(() => {
-  const keyword = searchQuery.trim().toLowerCase();
+    const keyword = searchQuery.trim().toLowerCase();
 
-  if (!keyword) {
-    return venues;
-  }
+    if (!keyword) {
+      return venues;
+    }
 
-  return venues.filter((venue) => {
-    return (
-      venue.name.toLowerCase().includes(keyword) ||
-      venue.address.toLowerCase().includes(keyword) ||
-      venue.note.toLowerCase().includes(keyword)
-    );
-  });
-}, [venues, searchQuery]);
+    return venues.filter((venue) => {
+      return (
+        venue.name.toLowerCase().includes(keyword) ||
+        venue.address.toLowerCase().includes(keyword) ||
+        venue.note.toLowerCase().includes(keyword)
+      );
+    });
+  }, [venues, searchQuery]);
 
   const handleOpenAddVenue = () => {
     setEditingVenue(null);
@@ -157,9 +161,7 @@ export default function Content() {
   const handleDeleteVenue = () => {
     if (!venueToDelete) return;
 
-    setVenues((prev) =>
-      prev.filter((venue) => venue.id !== venueToDelete.id),
-    );
+    setVenues((prev) => prev.filter((venue) => venue.id !== venueToDelete.id));
 
     setCourts((prev) =>
       prev.filter((court) => court.venueId !== venueToDelete.id),
@@ -175,10 +177,7 @@ export default function Content() {
 
   const [courts, setCourts] = useState(initialCourts);
 
-  const handleAddCourt = (
-    venueId: number,
-    data: CourtFormData,
-  ) => {
+  const handleAddCourt = (venueId: number, data: CourtFormData) => {
     setCourts((prev) => [
       ...prev,
       {
@@ -189,10 +188,7 @@ export default function Content() {
     ]);
   };
 
-  const handleUpdateCourt = (
-    courtId: number,
-    data: CourtFormData,
-  ) => {
+  const handleUpdateCourt = (courtId: number, data: CourtFormData) => {
     setCourts((prev) =>
       prev.map((court) =>
         court.id === courtId
@@ -206,59 +202,44 @@ export default function Content() {
   };
 
   const handleDeleteCourt = (courtId: number) => {
-    setCourts((prev) =>
-      prev.filter((court) => court.id !== courtId),
-    );
+    setCourts((prev) => prev.filter((court) => court.id !== courtId));
   };
   return (
-    <div className="flex min-h-full w-full flex-col gap-5 bg-bg p-5 pb-24 md:gap-8 md:p-8 md:pb-26 lg:pb-8">
-      {/* HEADER */}
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1>Venues Management</h1>
-
-          <p className="mt-1 text-sm text-gray-600 md:text-base">
-            Manage your locations and their respective courts.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleOpenAddVenue}
-          className="flex w-fit cursor-pointer items-center gap-2 rounded-lg bg-text px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-        >
-          <MapPin size={17} />
-          Add New Venue
-        </button>
-      </div>
-      {/* SEARCH */}
-      <WhiteCard className="items-stretch p-0!">
+    <ManagementPage
+      title={t("title")}
+      description={t("description")}
+      action={
+        <Button type="button" onClick={handleOpenAddVenue}>
+          {t("add")}
+        </Button>
+      }
+      toolbar={
         <ListToolbar
           searchValue={searchInput}
-          searchPlaceholder="Search venues..."
+          searchPlaceholder={t("search")}
           onSearchChange={setSearchInput}
           onSearch={() => setSearchQuery(searchInput)}
         />
-      </WhiteCard>
-      {/* VENUES */}
-      <WhiteCard className="flex-col items-stretch p-0!">
+      }
+    >
+      <ManagementListCard>
         {/* DESKTOP / TABLET */}
         <div className="hidden overflow-hidden md:block">
           {/* TABLE HEADER */}
-          <div className="grid grid-cols-[1.4fr_1.6fr_0.8fr_1fr_0.7fr] bg-main0 px-5 py-4 text-sm font-semibold text-gray-700">
-            <span>Name</span>
-            <span>Address</span>
-            <span>Price</span>
-            <span>Note</span>
-            <span className="text-center">Actions</span>
+          <div className="grid grid-cols-[1.4fr_1.6fr_0.8fr_1fr_0.7fr] bg-tag px-5 py-4 text-sm font-semibold">
+            <span>{t("name")}</span>
+            <span>{t("address")}</span>
+            <span>{t("price")}</span>
+            <span>{t("note")}</span>
+            <span className="text-center">{t("actions")}</span>
           </div>
 
           {/* TABLE BODY */}
           {filteredVenues.length > 0 ? (
-             filteredVenues.map((venue) => (
+            filteredVenues.map((venue) => (
               <div
                 key={venue.id}
-                className="grid grid-cols-[1.4fr_1.6fr_0.8fr_1fr_0.7fr] items-center border-b border-gray-100 px-5 py-6 last:border-b-0"
+                className="grid grid-cols-[1.4fr_1.6fr_0.8fr_1fr_0.7fr] items-center border-b border-foreground/20 px-5 py-6 last:border-b-0"
               >
                 {/* NAME */}
                 <div className="flex min-w-0 items-center gap-3">
@@ -269,28 +250,26 @@ export default function Content() {
                       className="size-10 shrink-0 rounded-lg object-cover"
                     />
                   ) : (
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-bg text-text">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-tag">
                       <MapPin size={18} />
                     </div>
                   )}
 
-                  <span className="truncate font-semibold text-gray-900">
-                    {venue.name}
-                  </span>
+                  <span className="truncate font-semibold">{venue.name}</span>
                 </div>
 
                 {/* ADDRESS */}
-                <p className="max-w-52 text-sm leading-5 text-gray-600">
+                <p className="max-w-52 text-sm leading-5 text-foreground/70">
                   {venue.address}
                 </p>
 
                 {/* PRICE */}
-                <span className="text-sm font-semibold text-text">
+                <span className="text-sm font-semibold">
                   {Number(venue.price).toLocaleString("vi-VN")} VNĐ
                 </span>
 
                 {/* NOTE */}
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-foreground/70">
                   {venue.note || "—"}
                 </span>
 
@@ -300,57 +279,47 @@ export default function Content() {
                     type="button"
                     aria-label={`View ${venue.name}`}
                     onClick={() => setViewingVenue(venue)}
-                    className="cursor-pointer text-text transition hover:opacity-60"
+                    className="cursor-pointer text-foreground transition hover:opacity-60"
                   >
-                    <Eye size={17} />
+                    <Eye size={20} />
                   </button>
 
                   <button
                     type="button"
                     aria-label={`Edit ${venue.name}`}
                     onClick={() => handleOpenEditVenue(venue)}
-                    className="cursor-pointer text-gray-600 transition hover:text-text"
+                    className="cursor-pointer text-primary transition hover:opacity-60"
                   >
-                    <Pencil size={16} />
+                    <Pencil size={20} />
                   </button>
 
                   <button
                     type="button"
                     aria-label={`Delete ${venue.name}`}
                     onClick={() => setVenueToDelete(venue)}
-                    className="cursor-pointer text-red-500 transition hover:text-red-700"
+                    className="cursor-pointer text-colorWrong transition hover:opacity-60"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={20} />
                   </button>
                 </div>
               </div>
             ))
           ) : (
-            <div className="flex flex-col items-center justify-center px-5 py-16">
-              <div className="flex size-14 items-center justify-center rounded-full bg-bg text-text">
-                <MapPin size={24} />
-              </div>
-
-              <p className="mt-3 font-semibold text-gray-700">
-                {searchQuery ? "No venues found" : "No venues yet"}
-              </p>
-
-              <p className="mt-1 text-sm text-gray-500">
-                {searchQuery
-                  ? "Try another search keyword."
-                  : "Add your first venue to get started."}
-              </p>
-            </div>
+            <EmptyListState
+              icon={<MapPin size={24} />}
+              title={searchQuery ? t("noResults") : t("noItems")}
+              description={searchQuery ? t("trySearch") : t("addFirst")}
+            />
           )}
         </div>
 
         {/* MOBILE */}
         <div className="flex flex-col gap-3 p-3 md:hidden">
           {filteredVenues.length > 0 ? (
-             filteredVenues.map((venue) => (
+            filteredVenues.map((venue) => (
               <div
                 key={venue.id}
-                className="rounded-xl border border-gray-100 bg-white p-4"
+                className="rounded-xl border border-foreground/20 bg-surface p-4"
               >
                 {/* MOBILE HEADER */}
                 <div className="flex items-start justify-between gap-3">
@@ -362,7 +331,7 @@ export default function Content() {
                         className="size-12 shrink-0 rounded-lg object-cover"
                       />
                     ) : (
-                      <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-bg text-text">
+                      <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-tag">
                         <MapPin size={19} />
                       </div>
                     )}
@@ -370,7 +339,7 @@ export default function Content() {
                     <div className="min-w-0">
                       <h3 className="truncate font-semibold">{venue.name}</h3>
 
-                      <p className="mt-1 text-sm text-gray-500">
+                      <p className="mt-1 text-sm text-foreground/70">
                         {venue.address}
                       </p>
                     </div>
@@ -380,24 +349,24 @@ export default function Content() {
                     type="button"
                     aria-label={`View ${venue.name}`}
                     onClick={() => setViewingVenue(venue)}
-                    className="shrink-0 cursor-pointer text-text transition hover:opacity-60"
+                    className="shrink-0 cursor-pointer text-foreground transition hover:opacity-60"
                   >
                     <Eye size={18} />
                   </button>
                 </div>
 
-                {/* MOBILE INFORMATION */}
+                {/* INFORMATION */}
                 <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg bg-bg p-3">
                   <div>
-                    <p className="text-xs text-gray-500">Price</p>
+                    <p className="text-xs text-foreground/60">{t("price")}</p>
 
-                    <p className="mt-1 text-sm font-semibold text-text">
+                    <p className="mt-1 text-sm font-semibold">
                       {Number(venue.price).toLocaleString("vi-VN")} VNĐ
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-xs text-gray-500">Note</p>
+                    <p className="text-xs text-foreground/60">{t("note")}</p>
 
                     <p className="mt-1 text-sm font-medium">
                       {venue.note || "—"}
@@ -405,48 +374,39 @@ export default function Content() {
                   </div>
                 </div>
 
-                {/* MOBILE ACTIONS */}
+                {/* ACTIONS */}
                 <div className="mt-4 flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => handleOpenEditVenue(venue)}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm transition hover:bg-bg"
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm text-primary transition hover:opacity-60"
                   >
                     <Pencil size={14} />
-                    Edit
+                    {t("edit")}
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setVenueToDelete(venue)}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-red-200 px-3 py-2 text-sm text-red-500 transition hover:bg-red-50"
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-colorWrong/30 px-3 py-2 text-sm text-colorWrong transition hover:opacity-70"
                   >
                     <Trash2 size={14} />
-                    Delete
+                    {t("delete")}
                   </button>
                 </div>
               </div>
             ))
           ) : (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="flex size-14 items-center justify-center rounded-full bg-bg text-text">
-                <MapPin size={24} />
-              </div>
-              <p className="mt-3 font-semibold text-gray-700">
-                {searchQuery ? "No venues found" : "No venues yet"}
-              </p>
-
-              <p className="mt-1 text-sm text-gray-500">
-                {searchQuery
-                  ? "Try another search keyword."
-                  : "Add your first venue to get started."}
-              </p>
-            </div>
+            <EmptyListState
+              icon={<MapPin size={24} />}
+              title={searchQuery ? t("noResults") : t("noItems")}
+              description={searchQuery ? t("trySearch") : t("addFirst")}
+              className="py-12"
+            />
           )}
         </div>
-      </WhiteCard>
+      </ManagementListCard>
 
-      {/* VENUE DETAIL */}
       <VenueDetailModal
         open={viewingVenue !== null}
         venue={viewingVenue}
@@ -457,7 +417,6 @@ export default function Content() {
         onDeleteCourt={handleDeleteCourt}
       />
 
-      {/* ADD / EDIT VENUE */}
       <VenueFormModal
         open={isVenueModalOpen}
         mode={editingVenueId !== null ? "edit" : "add"}
@@ -466,23 +425,21 @@ export default function Content() {
         onSubmit={handleSubmitVenue}
       />
 
-      {/* DELETE CONFIRMATION */}
       <ConfirmModal
         open={venueToDelete !== null}
-        title="Confirm deletion?"
-        description={`Are you sure you want to delete venue "${
-          venueToDelete?.name ?? ""
-        }"? This action cannot be undone.`}
+        title={tDialog("titleDelete")}
+        description={tDialog("venueDescription", {
+          name: venueToDelete?.name ?? "",
+        })}
         onClose={() => setVenueToDelete(null)}
         onConfirm={handleDeleteVenue}
       />
 
-      {/* SUCCESS */}
       <StatusModal
         open={successMessage !== null}
         description={successMessage ?? ""}
         onClose={() => setSuccessMessage(null)}
       />
-    </div>
+    </ManagementPage>
   );
 }

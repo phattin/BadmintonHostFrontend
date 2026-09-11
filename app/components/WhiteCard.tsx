@@ -8,7 +8,7 @@ type WhiteCardProps = {
 
 export default function WhiteCard({ className = "", padding = "p-3 md:p-6", children }: WhiteCardProps) {
     return(
-        <div className={`bg-white w-full rounded-2xl flex justify-between items-center ${className} ${padding}`}>
+        <div className={`bg-surface w-full rounded-2xl flex justify-between items-center ${className} ${padding}`}>
             {children}
         </div>
     )

@@ -1,6 +1,7 @@
 "use client";
 
 import { CircleCheckBig } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import Button from "./Button";
 import Modal from "./Modal";
@@ -15,32 +16,36 @@ interface StatusModalProps {
 
 export default function StatusModal({
   open,
-  title = "Success!",
+  title,
   description,
-  buttonText = "Close",
+  buttonText,
   onClose,
 }: StatusModalProps) {
+  const t = useTranslations("common");
+
   return (
     <Modal open={open} onClose={onClose} className="max-w-md">
-      <div className="flex flex-col items-center rounded-2xl bg-main0 px-6 py-8 text-center">
-        <div className="flex size-16 items-center justify-center rounded-full bg-main3 text-text">
+      <div className="flex flex-col items-center rounded-2xl px-6 py-8 text-center">
+        <div className="flex size-16 items-center justify-center rounded-full bg-tag text-primary">
           <CircleCheckBig size={32} />
         </div>
 
-        <h2 className="mt-5 text-2xl font-bold text-foreground">{title}</h2>
+        <h2 className="mt-5 text-2xl font-bold text-foreground">
+          {title ?? t("success")}
+        </h2>
 
-        <p className="mt-3 max-w-sm text-sm leading-6 text-gray-600 md:text-base">
+        <p className="mt-3 max-w-sm text-sm leading-6 text-foreground/60 md:text-base">
           {description}
         </p>
 
         <Button
           type="button"
           onClick={onClose}
-          background="bg-bg"
-          color="text-foreground"
-          className="mt-6 border border-placeholder"
+          background="bg-background"
+          color="text-primary"
+          className="mt-6 border border-primary"
         >
-          {buttonText}
+          {buttonText ?? t("close")}
         </Button>
       </div>
     </Modal>

@@ -4,59 +4,43 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f6f5;
+  --foreground: #333;
+  --surface: #fff;
+  --bgWrong: #ffdad6;
+  --colorWrong: #ba1a1a;
 
-  --card: #ffffff;
-  --border: #d8e8da;
-  --muted: #6b7280;
+  --tag: #a5d6a7;
+  --primary: #123921;
 
-  --main0: #f0fdf1;
-  --main1: #e8f5e9;
-  --main2: #a5d6a7;
-  --main3: #66bb6a;
-  --main4: #1b5e20;
-  --main5: #10371f;
-
-  --btn_content: #164e2b;
 }
 
 /* DARK MODE */
 .dark {
-  --background: #0f1711;
-  --foreground: #eef5ef;
+  --background: #101713;
+  --foreground: #edf3ef;
 
-  --card: #172019;
-  --border: #334438;
-  --muted: #aab8ad;
+  --surface: #18211b;
 
-  --main0: #19281d;
-  --main1: #203426;
-  --main2: #365f3d;
-  --main3: #66bb6a;
-  --main4: #9bd89f;
-  --main5: #c8e6c9;
+  --bgWrong: #3b2020;
+  --colorWrong: #ffb4ab;
 
-  --btn_content: #347a45;
+  --tag: #294b31;
+
+  --primary: #a5d6a7;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-bgWrong: var(--bgWrong);
+  --color-colorWrong: var(--colorWrong);
 
-  --color-card: var(--card);
-  --color-border-theme: var(--border);
-  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-tag: var(--tag);
 
-  --color-button: var(--main5);
-  --color-text: var(--main4);
-  --color-placeholder: var(--main2);
-  --color-bg: var(--main1);
-  --color-main3: var(--main3);
-  --color-main0: var(--main0);
-  --color-btn_content: var(--btn_content);
-
-  --font-sans: var(--font-toronto);
+  --font-sans: var(--font- );
 }
 
 body {
@@ -70,13 +54,13 @@ body {
 
 h1 {
   font-size: 2rem;
-  color: var(--main4);
-  font-weight: 800;
+  color: var(--foreground);
+  font-weight: 600;
 }
 
 h2 {
   font-size: 1.25rem;
-  color: var(--main4);
+  color: var(--foreground);
   font-weight: 800;
 }
 

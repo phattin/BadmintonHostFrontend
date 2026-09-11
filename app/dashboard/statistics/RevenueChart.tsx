@@ -56,13 +56,13 @@ export default function RevenueChart({
             >
               <stop
                 offset="5%"
-                stopColor="var(--main3)"
+                stopColor="var(--color-primary)"
                 stopOpacity={0.35}
               />
 
               <stop
                 offset="95%"
-                stopColor="var(--main3)"
+                stopColor="var(--color-primary)"
                 stopOpacity={0}
               />
             </linearGradient>
@@ -71,7 +71,8 @@ export default function RevenueChart({
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            stroke="#e5e7eb"
+            stroke="var(--color-foreground)"
+            strokeOpacity={0.15}
           />
 
           <XAxis
@@ -80,7 +81,8 @@ export default function RevenueChart({
             tickLine={false}
             tick={{
               fontSize: 12,
-              fill: "#6b7280",
+              fill: "var(--color-foreground)",
+              opacity: 0.6,
             }}
           />
 
@@ -90,7 +92,8 @@ export default function RevenueChart({
             tickFormatter={formatYAxis}
             tick={{
               fontSize: 12,
-              fill: "#9ca3af",
+              fill: "var(--color-foreground)",
+              opacity: 0.6,
             }}
           />
 
@@ -101,18 +104,35 @@ export default function RevenueChart({
             ]}
             contentStyle={{
               borderRadius: "12px",
-              border: "1px solid #e5e7eb",
+              border: "1px solid var(--color-tag)",
+              backgroundColor: "var(--color-surface)",
+              color: "var(--color-foreground)",
+              boxShadow: "0 8px 24px rgb(0 0 0 / 0.12)",
+            }}
+            labelStyle={{
+              color: "var(--color-foreground)",
+              fontWeight: 600,
+            }}
+            itemStyle={{
+              color: "var(--color-primary)",
+            }}
+            cursor={{
+              stroke: "var(--color-primary)",
+              strokeOpacity: 0.2,
             }}
           />
 
           <Area
             type="monotone"
             dataKey="revenue"
-            stroke="var(--main4)"
+            stroke="var(--color-primary)"
             strokeWidth={3}
             fill="url(#revenueGradient)"
             activeDot={{
               r: 5,
+              fill: "var(--color-surface)",
+              stroke: "var(--color-primary)",
+              strokeWidth: 3,
             }}
           />
         </AreaChart>

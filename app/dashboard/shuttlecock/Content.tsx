@@ -1,11 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Package, Pencil, Plus, Trash2 } from "lucide-react";
 
+import EmptyListState from "@/app/components/EmptyListState";
 import ListToolbar from "@/app/components/ListToolbar";
-import WhiteCard from "@/app/components/WhiteCard";
+import ManagementListCard from "@/app/components/ManagementListCard";
+import ManagementPage from "@/app/components/ManagementPage";
+import Button from "@/app/components/ui/Button";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import StatusModal from "@/app/components/ui/StatusModal";
 
@@ -50,12 +54,16 @@ const initialShuttleCocks: ShuttleCock[] = [
 ];
 
 export default function Content() {
+  const t = useTranslations("shuttlecocks");
+  const tDialog = useTranslations("dialog");
   const [shuttleCocks, setShuttleCocks] =
     useState<ShuttleCock[]>(initialShuttleCocks);
 
+  /* SEARCH */
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
+  /* FORM */
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   const [editingShuttleCock, setEditingShuttleCock] =
@@ -64,6 +72,7 @@ export default function Content() {
   const [shuttleCockToDelete, setShuttleCockToDelete] =
     useState<ShuttleCock | null>(null);
 
+  /* STATUS */
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const filteredShuttleCocks = useMemo(() => {
@@ -93,7 +102,6 @@ export default function Content() {
   };
 
   const handleCloseForm = () => {
-    setEditingShuttleCock(null);
     setIsFormOpen(false);
   };
 
@@ -101,27 +109,27 @@ export default function Content() {
     const quantity = Number(data.quantity);
     const pricePerTube = Number(data.pricePerTube);
     const shuttlecocksPerTube = Number(data.shuttlecocksPerTube);
-    const pricePerShuttlecock = pricePerTube / shuttlecocksPerTube;
+
+    const pricePerShuttlecock =
+      shuttlecocksPerTube > 0 ? pricePerTube / shuttlecocksPerTube : 0;
 
     if (editingShuttleCock) {
       setShuttleCocks((prev) =>
-        prev.map((shuttleCock) => {
-          if (shuttleCock.id === editingShuttleCock.id) {
-            return {
-              ...shuttleCock,
-              name: data.name,
-              quantity,
-              pricePerTube,
-              shuttlecocksPerTube,
-              pricePerShuttlecock,
-            };
-          }
-
-          return shuttleCock;
-        }),
+        prev.map((shuttleCock) =>
+          shuttleCock.id === editingShuttleCock.id
+            ? {
+                ...shuttleCock,
+                name: data.name,
+                quantity,
+                pricePerTube,
+                shuttlecocksPerTube,
+                pricePerShuttlecock,
+              }
+            : shuttleCock,
+        ),
       );
 
-      setSuccessMessage("Shuttlecock information updated successfully.");
+      setSuccessMessage(t("updated"));
     } else {
       const newShuttleCock: ShuttleCock = {
         id: Date.now(),
@@ -133,7 +141,8 @@ export default function Content() {
       };
 
       setShuttleCocks((prev) => [...prev, newShuttleCock]);
-      setSuccessMessage("New shuttlecock added successfully.");
+
+      setSuccessMessage(t("added"));
     }
 
     handleCloseForm();
@@ -143,57 +152,53 @@ export default function Content() {
     if (!shuttleCockToDelete) return;
 
     setShuttleCocks((prev) =>
-      prev.filter(
-        (shuttleCock) => shuttleCock.id !== shuttleCockToDelete.id,
-      ),
+      prev.filter((shuttleCock) => shuttleCock.id !== shuttleCockToDelete.id),
     );
 
     setShuttleCockToDelete(null);
-    setSuccessMessage("Shuttlecock deleted successfully.");
+
+    setSuccessMessage(t("deleted"));
+  };
+
+  const formatPrice = (price: number) => {
+    return `${Math.round(price).toLocaleString("vi-VN")} VNĐ`;
   };
 
   return (
-    <div className="flex min-h-full w-full flex-col gap-5 bg-bg p-5 pb-24 md:gap-8 md:p-8 md:pb-26 lg:pb-8">
-      {/* HEADER */}
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1>ShuttleCock Management</h1>
-
-          <p className="mt-1 text-sm text-gray-600 md:text-base">
-            Manage shuttlecock inventory and pricing.
-          </p>
-        </div>
-
-        <button
+    <ManagementPage
+      title={t("title")}
+      description={t("description")}
+      action={
+        <Button
           type="button"
           onClick={handleOpenAdd}
-          className="flex w-fit cursor-pointer items-center gap-2 rounded-lg bg-text px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+          className="md:w-fit md:px-6"
         >
           <Plus size={17} />
-          Add ShuttleCock
-        </button>
-      </div>
-      {/* SEARCH */}
-      <WhiteCard padding="p-0">
+          {t("add")}
+        </Button>
+      }
+      toolbar={
         <ListToolbar
           searchValue={searchInput}
-          searchPlaceholder="Search shuttlecocks..."
+          searchPlaceholder={t("search")}
           onSearchChange={setSearchInput}
           onSearch={handleSearch}
         />
-      </WhiteCard>
+      }
+    >
       {/* SHUTTLECOCK LIST */}
-      <WhiteCard padding="p-0" className="flex-col items-stretch">
+      <ManagementListCard>
         {/* DESKTOP / TABLET */}
         <div className="hidden overflow-hidden md:block">
           {/* TABLE HEADER */}
-          <div className="grid grid-cols-[1.5fr_0.7fr_0.8fr_0.9fr_1fr_0.6fr] bg-main0 px-5 py-4 text-sm font-semibold text-gray-700">
-            <span>Name</span>
-            <span>Quantity</span>
-            <span>Shuttle / Tube</span>
-            <span>Price / Tube</span>
-            <span>Price / Shuttle</span>
-            <span className="text-center">Actions</span>
+          <div className="grid grid-cols-[1.5fr_0.7fr_0.8fr_0.9fr_1fr_0.6fr] bg-tag px-5 py-4 text-sm font-semibold">
+            <span>{t("name")}</span>
+            <span>{t("quantity")}</span>
+            <span>{t("shuttlePerTube")}</span>
+            <span>{t("pricePerTube")}</span>
+            <span>{t("pricePerShuttle")}</span>
+            <span className="text-center">{t("actions")}</span>
           </div>
 
           {/* TABLE BODY */}
@@ -201,15 +206,15 @@ export default function Content() {
             filteredShuttleCocks.map((shuttleCock) => (
               <div
                 key={shuttleCock.id}
-                className="grid grid-cols-[1.5fr_0.7fr_0.8fr_0.9fr_1fr_0.6fr] items-center border-b border-gray-100 px-5 py-6 last:border-b-0"
+                className="grid grid-cols-[1.5fr_0.7fr_0.8fr_0.9fr_1fr_0.6fr] items-center border-b border-foreground/20 px-5 py-6 last:border-b-0"
               >
                 {/* NAME */}
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-placeholder text-text">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-tag text-primary">
                     <Package size={18} />
                   </div>
 
-                  <span className="truncate font-semibold text-gray-900">
+                  <span className="truncate font-semibold">
                     {shuttleCock.name}
                   </span>
                 </div>
@@ -217,25 +222,25 @@ export default function Content() {
                 {/* QUANTITY */}
                 <div>
                   <span className="font-semibold">{shuttleCock.quantity}</span>
-                  <span className="ml-1 text-sm text-gray-500">tubes</span>
+
+                  <span className="ml-1 text-sm text-foreground/60">
+                    {t("tubes")}
+                  </span>
                 </div>
 
                 {/* SHUTTLE / TUBE */}
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-foreground/70">
                   {shuttleCock.shuttlecocksPerTube}
                 </span>
 
                 {/* PRICE / TUBE */}
                 <span className="text-sm font-medium">
-                  {shuttleCock.pricePerTube.toLocaleString("vi-VN")} VNĐ
+                  {formatPrice(shuttleCock.pricePerTube)}
                 </span>
 
                 {/* PRICE / SHUTTLE */}
-                <span className="text-sm font-semibold text-text">
-                  {Math.round(
-                    shuttleCock.pricePerShuttlecock,
-                  ).toLocaleString("vi-VN")}{" "}
-                  VNĐ
+                <span className="text-sm font-semibold text-primary">
+                  {formatPrice(shuttleCock.pricePerShuttlecock)}
                 </span>
 
                 {/* ACTIONS */}
@@ -244,38 +249,28 @@ export default function Content() {
                     type="button"
                     aria-label={`Edit ${shuttleCock.name}`}
                     onClick={() => handleOpenEdit(shuttleCock)}
-                    className="cursor-pointer text-gray-600 transition hover:text-text"
+                    className="cursor-pointer text-primary transition hover:opacity-60"
                   >
-                    <Pencil size={16} />
+                    <Pencil size={20} />
                   </button>
 
                   <button
                     type="button"
                     aria-label={`Delete ${shuttleCock.name}`}
                     onClick={() => setShuttleCockToDelete(shuttleCock)}
-                    className="cursor-pointer text-red-500 transition hover:text-red-700"
+                    className="cursor-pointer text-colorWrong transition hover:opacity-60"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={20} />
                   </button>
                 </div>
               </div>
             ))
           ) : (
-            <div className="flex flex-col items-center justify-center px-5 py-16">
-              <div className="flex size-14 items-center justify-center rounded-full bg-bg text-text">
-                <Package size={24} />
-              </div>
-
-              <p className="mt-3 font-semibold text-gray-700">
-                {searchQuery ? "No shuttlecocks found" : "No shuttlecocks yet"}
-              </p>
-
-              <p className="mt-1 text-sm text-gray-500">
-                {searchQuery
-                  ? "Try another search keyword."
-                  : "Add your first shuttlecock to start managing inventory."}
-              </p>
-            </div>
+            <EmptyListState
+              icon={<Package size={24} />}
+              title={searchQuery ? t("noResults") : t("noItems")}
+              description={searchQuery ? t("trySearch") : t("addFirst")}
+            />
           )}
         </div>
 
@@ -285,63 +280,72 @@ export default function Content() {
             filteredShuttleCocks.map((shuttleCock) => (
               <div
                 key={shuttleCock.id}
-                className="rounded-xl border border-gray-100 bg-white p-4"
+                className="rounded-xl border border-foreground/20 bg-surface p-4"
               >
-                {/* HEADER */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-placeholder text-text">
-                      <Package size={20} />
-                    </div>
+                {/* MOBILE HEADER */}
+                <div className="flex items-start gap-3">
+                  <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-tag text-primary">
+                    <Package size={20} />
+                  </div>
 
-                    <div className="min-w-0">
-                      <h3 className="truncate font-semibold">
-                        {shuttleCock.name}
-                      </h3>
+                  <div className="min-w-0">
+                    <h3 className="truncate font-semibold">
+                      {shuttleCock.name}
+                    </h3>
 
-                      <p className="mt-1 text-sm text-gray-500">
-                        {shuttleCock.quantity} tubes available
-                      </p>
-                    </div>
+                    <p className="mt-1 text-sm text-foreground/60">
+                      {shuttleCock.quantity} tubes available
+                    </p>
                   </div>
                 </div>
 
                 {/* INFORMATION */}
                 <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg bg-bg p-3">
+                  {/* SHUTTLE / TUBE */}
                   <div>
-                    <p className="text-xs text-gray-500">Shuttle / Tube</p>
+                    <p className="text-xs text-foreground/60">Shuttle / Tube</p>
 
                     <p className="mt-1 text-sm font-semibold">
                       {shuttleCock.shuttlecocksPerTube}
                     </p>
                   </div>
 
+                  {/* QUANTITY */}
                   <div>
-                    <p className="text-xs text-gray-500">Price / Tube</p>
+                    <p className="text-xs text-foreground/60">Quantity</p>
 
                     <p className="mt-1 text-sm font-semibold">
-                      {shuttleCock.pricePerTube.toLocaleString("vi-VN")} VNĐ
+                      {shuttleCock.quantity} tubes
                     </p>
                   </div>
 
-                  <div className="col-span-2">
-                    <p className="text-xs text-gray-500">Price / Shuttle</p>
+                  {/* PRICE / TUBE */}
+                  <div>
+                    <p className="text-xs text-foreground/60">Price / Tube</p>
 
-                    <p className="mt-1 text-base font-bold text-text">
-                      {Math.round(
-                        shuttleCock.pricePerShuttlecock,
-                      ).toLocaleString("vi-VN")}{" "}
-                      VNĐ
+                    <p className="mt-1 text-sm font-semibold">
+                      {formatPrice(shuttleCock.pricePerTube)}
+                    </p>
+                  </div>
+
+                  {/* PRICE / SHUTTLE */}
+                  <div>
+                    <p className="text-xs text-foreground/60">
+                      Price / Shuttle
+                    </p>
+
+                    <p className="mt-1 text-sm font-semibold text-primary">
+                      {formatPrice(shuttleCock.pricePerShuttlecock)}
                     </p>
                   </div>
                 </div>
 
-                {/* ACTIONS */}
+                {/* MOBILE ACTIONS */}
                 <div className="mt-4 flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => handleOpenEdit(shuttleCock)}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm transition hover:bg-bg"
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm text-primary transition hover:opacity-60"
                   >
                     <Pencil size={14} />
                     Edit
@@ -350,7 +354,7 @@ export default function Content() {
                   <button
                     type="button"
                     onClick={() => setShuttleCockToDelete(shuttleCock)}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-red-200 px-3 py-2 text-sm text-red-500 transition hover:bg-red-50"
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-colorWrong/30 px-3 py-2 text-sm text-colorWrong transition hover:opacity-60"
                   >
                     <Trash2 size={14} />
                     Delete
@@ -359,24 +363,15 @@ export default function Content() {
               </div>
             ))
           ) : (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="flex size-14 items-center justify-center rounded-full bg-bg text-text">
-                <Package size={24} />
-              </div>
-
-              <p className="mt-3 font-semibold text-gray-700">
-                {searchQuery ? "No shuttlecocks found" : "No shuttlecocks yet"}
-              </p>
-
-              <p className="mt-1 text-center text-sm text-gray-500">
-                {searchQuery
-                  ? "Try another search keyword."
-                  : "Add your first shuttlecock to get started."}
-              </p>
-            </div>
+            <EmptyListState
+              icon={<Package size={24} />}
+              title={searchQuery ? t("noResults") : t("noItems")}
+              description={searchQuery ? t("trySearch") : t("addFirst")}
+              className="py-12"
+            />
           )}
         </div>
-      </WhiteCard>
+      </ManagementListCard>
 
       {/* ADD / EDIT */}
       <ShuttleCockFormModal
@@ -398,13 +393,13 @@ export default function Content() {
         onSubmit={handleSubmit}
       />
 
-      {/* DELETE */}
+      {/* DELETE CONFIRMATION */}
       <ConfirmModal
         open={shuttleCockToDelete !== null}
-        title="Confirm deletion?"
-        description={`Are you sure you want to delete "${
-          shuttleCockToDelete?.name ?? ""
-        }"? This action cannot be undone.`}
+        title={tDialog("titleDelete")}
+        description={tDialog("shuttlecockDescription", {
+          name: shuttleCockToDelete?.name ?? "",
+        })}
         onClose={() => setShuttleCockToDelete(null)}
         onConfirm={handleDelete}
       />
@@ -415,6 +410,6 @@ export default function Content() {
         description={successMessage ?? ""}
         onClose={() => setSuccessMessage(null)}
       />
-    </div>
+    </ManagementPage>
   );
 }
